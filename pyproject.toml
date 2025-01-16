@@ -1,0 +1,17 @@
+[project]
+name = "pyblisher"
+version = "0.1.0"
+description = "gi"
+authors = [{ name = "Stephan Glauner", email = "stephan.glauner@rostock.de" }]
+requires-python = ">=3.11"
+readme = "README.md"
+license = "MIT"
+license-file = "LICENSE"
+
+[project.urls]
+homepage = "https://github.com/steffigra/pyblisher"
+repository = "https://github.com/steffigra/pyblisher"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
