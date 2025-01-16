@@ -1,9 +1,10 @@
 [project]
 name = "pyblisher"
 version = "0.1.0"
-description = "gi"
+description = "Ein Python Interface für den VCPublisher von Virtual City Systems."
 authors = [{ name = "Stephan Glauner", email = "stephan.glauner@rostock.de" }]
 requires-python = ">=3.11"
+requires = ["httpx", "django"]
 readme = "README.md"
 license = "MIT"
 license-file = "LICENSE"
