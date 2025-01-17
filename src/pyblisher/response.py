@@ -13,3 +13,16 @@ class ExtResponse(Response):
             return True
         else:
             return False
+
+    @classmethod
+    def from_response(cls, response: Response):
+        """
+        Create an ExtResponse from a httpx.Response object.
+        """
+        return cls(
+            status_code=response.status_code,
+            headers=response.headers,
+            content=response.content,
+            request=response.request,
+            extensions=response.extensions
+        )

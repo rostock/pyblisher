@@ -20,7 +20,8 @@ class ApiClient:
             bearer: str = 'no bearer'
             self.__url: str = settings.HOST
             if self.__url:
-                response = ExtResponse(request(
+
+                response = ExtResponse.from_response(request(
                     method='POST',
                     url=f'{self.__url}/login/',
                     auth=(settings.USER, settings.PASSWORD),
