@@ -1,1 +1,6 @@
+# Directories
 zed/*
+venv/*
+
+# Files
+pyrightconfig.json

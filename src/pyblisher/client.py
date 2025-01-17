@@ -1,9 +1,9 @@
 from pyblisher.response import ExtResponse
 from .settings import settings
 from .bearerAuth import BearerAuth
-from httpx import request, Client, Response
+from httpx import request, Client
 
-class Client:
+class ApiClient:
     def __init__(self):
         self.__project_id = settings.VCP_API_PROJECT_ID
         self.__data_path = '/vcs/data/public/'  # im root System unter /nfs/daten/rostock3d/vcpublisher
