@@ -1,5 +1,6 @@
 from httpx import Response
 
+
 class ExtResponse(Response):
     """
     An extended httpx.Response object with additional methods.
@@ -24,5 +25,5 @@ class ExtResponse(Response):
             headers=response.headers,
             content=response.content,
             request=response.request,
-            extensions=response.extensions
+            extensions=response.extensions,
         )

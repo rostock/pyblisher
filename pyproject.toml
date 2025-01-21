@@ -23,4 +23,4 @@ select = ["E", "F", "I"]
 
 [tool.pyright]
 venvPath = "."
-venv = ".venv"
+venv = "venv"
