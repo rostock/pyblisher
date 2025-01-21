@@ -16,3 +16,11 @@ repository = "https://github.com/steffigra/pyblisher"
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 80
+select = ["E", "F", "I"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
