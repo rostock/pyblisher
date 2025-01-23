@@ -21,6 +21,10 @@ class Settings:
     }
 
     def __new__(cls):
+        """
+        This method is called when the class is instantiated.
+        It returns the existing instance if it exists, otherwise it creates a new one
+        """
         if cls._instance is None:
             cls._instance = super(Settings, cls).__new__(cls)
             cls._instance._load_settings()

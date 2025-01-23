@@ -1,4 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+from src.pyblisher.client import ApiClient
 
 
 @dataclass
@@ -18,11 +20,12 @@ class Project:
     :atype properties: dict
     """
 
-    __id: str
+    _id: str
     name: str
     description: str = ""
     bbox: list = None
     properties: dict = None
+    __api: ApiClient = field(init=False, default=ApiClient())
 
     def __create__(self) -> bool:
         """
