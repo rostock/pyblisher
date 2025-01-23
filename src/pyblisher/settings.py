@@ -12,7 +12,7 @@ class Settings:
     user: str = ""
     password: str = ""
     api_version: str = "v1"
-    project_id: int = 1
+    project_id: str = ""
 
     def __new__(cls):
         """
@@ -38,6 +38,9 @@ class Settings:
             return
         else:
             print("no settings found")
+            raise AttributeError(
+                "Found no Settings in pyblisher.toml or Django settings."
+            )
 
     def _load_django_settings(self) -> bool:
         """

@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
@@ -26,8 +26,7 @@ class Task:
     :atype schedule: dict
     """
 
-    __client: ApiClient = ApiClient()
-    _project = __client.get_project_id()
+    _client: ApiClient = field(repr=False)
     _id: str = ""
     name: str = ""
     description: str = ""
