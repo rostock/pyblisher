@@ -1,7 +1,5 @@
-from pathlib import Path
-from typing import Any, Dict
-
 import tomllib
+from pathlib import Path
 
 
 class Settings:
@@ -10,20 +8,15 @@ class Settings:
     """
 
     _instance = None
-    _settings: Dict[str, Any] = {
-        "HOST": None,
-        "USER": None,
-        "PASSWORD": None,
-        # "TIMEOUT": 30,
-        # weitere Default-Werte hier
-        "API_VERSION": "v1",
-        "PROJECT_ID": None,
-    }
+    host: str = ""
+    user: str = ""
+    password: str = ""
+    api_version: str = "v1"
+    project_id: int = 1
 
     def __new__(cls):
         """
-        This method is called when the class is instantiated.
-        It returns the existing instance if it exists, otherwise it creates a new one
+        This is a singleton, so we only create one instance of this class.
         """
         if cls._instance is None:
             cls._instance = super(Settings, cls).__new__(cls)
@@ -31,26 +24,40 @@ class Settings:
         return cls._instance
 
     def _load_settings(self) -> None:
+        """
+        This function tries to load settings from different sources.
+        """
         # 1. Versuche Django Settings zu laden
         if self._load_django_settings():
+            print("loaded settings from Django settings")
             return
 
-        # 2. Versuche pyblisher.toml zu laden
-        if self._load_toml_config():
+        # 2. Versuche pyblisher.toml zu laden.
+        elif self._load_toml_config():
+            print("loaded settings from pyblisher.toml")
             return
+        else:
+            print("no settings found")
 
     def _load_django_settings(self) -> bool:
+        """
+        This function tries to load settings from Django settings.
+        """
         try:
             from django.conf import settings
 
             if hasattr(settings, "PYBLISHER"):
-                self._settings.update(settings.PYBLISHER)
+                for key, value in settings.PYBLISHER.items():
+                    setattr(self, key.lower(), value)
                 return True
         except ImportError:
             return False
         return False
 
     def _load_toml_config(self) -> bool:
+        """
+        This function tries to load settings from a pyblisher.toml file.
+        """
         try:
             # Suche pyblisher.toml im aktuellen Projektverzeichnis
             config_path = Path.cwd() / "pyblisher.toml"
@@ -62,16 +69,33 @@ class Settings:
                     if (
                         "pyblisher" in config
                     ):  # Wir erwarten einen [pyblisher] Abschnitt
-                        self._settings.update(config["pyblisher"])
+                        # self._settings.update(config["pyblisher"])
+                        for key, value in config["pyblisher"].items():
+                            setattr(self, key.lower(), value)
                     return True
         except Exception as e:
             print(f"Warnung: Konnte pyblisher.toml nicht laden: {e}")
         return False
 
-    def __getattr__(self, name: str) -> Any:
-        if name in self._settings:
-            return self._settings[name]
-        raise AttributeError(f"'{self.__class__.__name__}' has no attribute '{name}'")
+    def __getattr__(self, name: str):
+        """
+        This function is called when an attribute is not found.
+        """
+        raise AttributeError(
+            f"'{self.__class__.__name__}' has no attribute '{name}'"
+        )
+
+    def __repr__(self):
+        """
+        This function returns its state in the following format:
+            ClassName(attr1=value1, attr2=value2, ...)
+        every value is represented with its repr() function
+        """
+        text = f"{self.__class__.__name__}("
+        for key, value in self.__dict__.items():
+            text += f"{key}={repr(value)}, "
+        text = text[:-2] + ")"
+        return text
 
 
 settings = Settings()
