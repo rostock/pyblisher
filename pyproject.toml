@@ -1,26 +1,23 @@
 [project]
 name = "pyblisher"
 version = "0.1.0"
-description = "Ein Python Interface für den VCPublisher von Virtual City Systems."
-authors = [{ name = "Stephan Glauner", email = "stephan.glauner@rostock.de" }]
-requires-python = ">=3.11"
-requires = ["httpx", "django"]
+description = "Add your description here"
 readme = "README.md"
-license = "MIT"
-license-file = "LICENSE"
-
-[project.urls]
-homepage = "https://github.com/steffigra/pyblisher"
-repository = "https://github.com/steffigra/pyblisher"
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires-python = ">=3.12"
+dependencies = [
+    "dacite>=1.8.1",
+    "httpx>=0.28.1",
+    "pyright>=1.1.392.post0",
+    "ruff>=0.9.3",
+]
 
 [tool.ruff]
 line-length = 80
 select = ["E", "F", "I"]
 
+[tool.ruff.format]
+quote-style = "single"
+
 [tool.pyright]
 venvPath = "."
-venv = "venv"
+venv = ".venv"

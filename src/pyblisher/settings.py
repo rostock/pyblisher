@@ -5,14 +5,20 @@ from pathlib import Path
 class Settings:
     """
     This class is a singleton that loads settings from different sources.
+
+    :attr host: The host of the API
+    :atype host: str
+    :attr user: The user for the API
+    :atype user: str
+    :attr password: The password for the API
+    :atype password: str
+    :attr api_version: The version of the API
+    :atype api_version: str
+    :attr project_id: The project id
+    :atype project_id: str
     """
 
     _instance = None
-    host: str = ""
-    user: str = ""
-    password: str = ""
-    api_version: str = "v1"
-    project_id: str = ""
 
     def __new__(cls):
         """
@@ -29,17 +35,17 @@ class Settings:
         """
         # 1. Versuche Django Settings zu laden
         if self._load_django_settings():
-            print("loaded settings from Django settings")
+            print('loaded settings from Django settings')
             return
 
         # 2. Versuche pyblisher.toml zu laden.
         elif self._load_toml_config():
-            print("loaded settings from pyblisher.toml")
+            print('loaded settings from pyblisher.toml')
             return
         else:
-            print("no settings found")
+            print('no settings found')
             raise AttributeError(
-                "Found no Settings in pyblisher.toml or Django settings."
+                'Found no Settings in pyblisher.toml or Django settings.'
             )
 
     def _load_django_settings(self) -> bool:
@@ -49,7 +55,7 @@ class Settings:
         try:
             from django.conf import settings
 
-            if hasattr(settings, "PYBLISHER"):
+            if hasattr(settings, 'PYBLISHER'):
                 for key, value in settings.PYBLISHER.items():
                     setattr(self, key.lower(), value)
                 return True
@@ -63,21 +69,21 @@ class Settings:
         """
         try:
             # Suche pyblisher.toml im aktuellen Projektverzeichnis
-            config_path = Path.cwd() / "pyblisher.toml"
+            config_path = Path.cwd() / 'pyblisher.toml'
             if config_path.exists():
                 with open(
-                    config_path, "rb"
+                    config_path, 'rb'
                 ) as f:  # TOML muss im binary mode gelesen werden
                     config = tomllib.load(f)
                     if (
-                        "pyblisher" in config
+                        'pyblisher' in config
                     ):  # Wir erwarten einen [pyblisher] Abschnitt
                         # self._settings.update(config["pyblisher"])
-                        for key, value in config["pyblisher"].items():
+                        for key, value in config['pyblisher'].items():
                             setattr(self, key.lower(), value)
                     return True
         except Exception as e:
-            print(f"Warnung: Konnte pyblisher.toml nicht laden: {e}")
+            print(f'Warnung: Konnte pyblisher.toml nicht laden: {e}')
         return False
 
     def __getattr__(self, name: str):
@@ -94,10 +100,10 @@ class Settings:
             ClassName(attr1=value1, attr2=value2, ...)
         every value is represented with its repr() function
         """
-        text = f"{self.__class__.__name__}("
+        text = f'{self.__class__.__name__}('
         for key, value in self.__dict__.items():
-            text += f"{key}={repr(value)}, "
-        text = text[:-2] + ")"
+            text += f'{key}={repr(value)}, '
+        text = text[:-2] + ')'
         return text
 
 

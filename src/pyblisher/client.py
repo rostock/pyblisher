@@ -1,5 +1,7 @@
-from httpx import Client, Response, codes, request
+from dacite import from_dict
+from httpx import Client, Response, codes, post
 
+from src.pyblisher import Project
 from src.pyblisher.bearerAuth import BearerAuth
 from src.pyblisher.settings import settings
 
@@ -12,16 +14,17 @@ def log(event_name, info):
 
 
 class ApiClient:
-    def __init__(
-        self,
-        url: str = settings.HOST,
-        api_version: str = settings.API_VERSION,
-        project_id: str = settings.PROJECT_ID,
-    ):
-        self.__url: str = url
-        self._api_version: str = api_version
-        self.__project_id: str = project_id
-        self._connected = False
+    _instance = None
+    _connected = False
+    _url: str = ''
+
+    def __new__(cls):
+        """
+        Singleton Pattern
+        """
+        if cls._instance is None:
+            cls._instance = super(ApiClient, cls).__new__(cls)
+        return cls._instance
 
     def __login__(self) -> bool:
         """
@@ -29,24 +32,25 @@ class ApiClient:
         :return: bearer token
         """
         if not self._connected:
-            bearer: str = "no bearer"
-            self.__url: str = settings.HOST
-            if self.__url:
-                response = request(
-                    method="POST",
-                    url=f"{self.__url}/login/",
-                    auth=(settings.USER, settings.PASSWORD),
-                    headers={"Content-Type": "application/json"},
+            bearer: str = 'no bearer'
+            self._url: str = f'{settings.host}/api/{settings.api_version}'
+            if self._url:
+                response = post(
+                    url=f'{self._url}/login/',
+                    data={
+                        'username': settings.user,
+                        'password': settings.password,
+                    },
                 )
-                if response.status_code == codes.OK:
-                    bearer: str = response.json()["token"]
-                    self._client = Client(
-                        base_url=f"{self.__url}/api/{self._api_version}/"
-                    )
+                print('huhu')
+                print(response.__dict__)
+                if response.status_code == 200:
+                    bearer: str = response.json()['token']
+                    self._client = Client(base_url=f'{self._url}/')
                     self._client.auth = BearerAuth(bearer)
                     self._connected = True
                 else:
-                    raise Exception(f"Login failed: {response.__dict__}")
+                    raise Exception(f'Login failed: {response.__dict__}')
         return self._connected
 
     def __logout__(self) -> None:
@@ -54,18 +58,16 @@ class ApiClient:
         logout from API
         """
         if self._connected:
-            response = self._client.get(url=f"{self.__url}/logout/")
+            response = self._client.get(url=f'{self._url}/logout/')
             # should return 201 Logout Successful
             if response.status_code == 201:
                 # self.logger.debug("Logout.")
-                print("Logout.")
+                print('Logout.')
             else:
                 # self.logger.warning(f"Logout failed: {response.json()}")
-                print(f"Logout failed: {response.__dict__}")
+                print(f'Logout failed: {response.__dict__}')
 
-    def get(
-        self, endpoint: str, headers=None, stream: bool = False, *args, **kwargs
-    ) -> Response:
+    def get(self, endpoint: str, headers=None, *args, **kwargs) -> Response:
         """
         Make a GET Request to the VC Publisher API.
 
@@ -79,10 +81,12 @@ class ApiClient:
             """
             Get Request
             """
-            url: str = self.__url + endpoint
-            response = self._client.get(
-                url=url, headers=headers, extensions={"trace": log}
+            url = self._url + endpoint
+            response: Response = self._client.get(
+                url=url, headers=headers, extensions={'trace': log}
             )
+            print('get_it')
+            print(response.__dict__)
             return response
 
         if self._connected:
@@ -117,13 +121,13 @@ class ApiClient:
             """
             Post Request
             """
-            url: str = self.__url + endpoint
+            url: str = self._url + endpoint
             response = self._client.post(
                 url=url,
                 data=data,
                 json=json,
                 files=files,
-                extensions={"trace": log},
+                extensions={'trace': log},
             )
             return response
 
@@ -149,9 +153,9 @@ class ApiClient:
             """
             Delete Request
             """
-            url: str = self.__url + endpoint
+            url: str = self._url + endpoint
             response = self._client.delete(
-                url=url, headers=headers, extensions={"trace": log}
+                url=url, headers=headers, extensions={'trace': log}
             )
             return response
 
@@ -175,13 +179,13 @@ class ApiClient:
             """
             Put Request
             """
-            url = self.__url + endpoint
+            url = self._url + endpoint
             response = self._client.put(
                 url=url,
                 data=data,
                 json=json,
                 files=files,
-                extensions={"trace": log},
+                extensions={'trace': log},
             )
             return response
 
@@ -205,14 +209,14 @@ class ApiClient:
         """
         Stream a request
         """
-        url = self.__url + endpoint
+        url = self._url + endpoint
         response = self._client.stream(
             method=method,
             url=url,
             data=data,
             json=json,
             files=files,
-            extensions={"trace": log},
+            extensions={'trace': log},
         )
         return response
 
@@ -226,6 +230,22 @@ class ApiClient:
         """
         pass
 
+    def get_project(self, project_id: str):
+        """
+        not implemented yet
+
+        Get project by id
+
+        :return: project
+        """
+        response: Response = self.get(
+            endpoint=f'project/{project_id}/',
+        )
+        print('get_project')
+        print(response.__dict__)
+        if response.status_code == codes.OK:
+            return from_dict(data_class=Project, data=response.json())
+
     def get_databases(self):
         """
         not implemented yet
@@ -235,3 +255,6 @@ class ApiClient:
         :return: list of databases
         """
         pass
+
+    def test(self):
+        print('test')

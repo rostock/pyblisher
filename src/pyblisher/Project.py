@@ -1,7 +1,5 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
-
-from src.pyblisher.client import ApiClient
 
 
 @dataclass
@@ -23,19 +21,12 @@ class Project:
 
     _id: str
     name: str
-    description: Optional[str] = ""
+    description: Optional[str] = ''
     bbox: Optional[list] = None
     properties: Optional[dict] = None
-    _api: ApiClient = field(init=False, default=ApiClient(), repr=False)
 
-    def __get_project__(self) -> bool:
+    def create_task(self, name: str, description: str):
         """
-        Get a project by its id and updates object attributes.
-
-        :return: ok
-        :rtype: bool
+        Create a task for this project.
         """
         pass
-
-    def create_task(self, name: str, description: str) -> Task:
-        return Task(name=name, description=description, api=self._api)
