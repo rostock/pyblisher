@@ -1,9 +1,9 @@
-from dacite import from_dict
-from httpx import Client, Response, codes, post
+from typing import Optional
 
-from src.pyblisher import Project
-from src.pyblisher.bearerAuth import BearerAuth
-from src.pyblisher.settings import settings
+from httpx import Client, Response, post
+
+from pyblisher.auth import BearerAuth
+from pyblisher.Settings import settings
 
 
 def log(event_name, info):
@@ -33,17 +33,15 @@ class ApiClient:
         """
         if not self._connected:
             bearer: str = 'no bearer'
-            self._url: str = f'{settings.host}/api/{settings.api_version}'
+            self._url: str = f'{settings.host}/api/{settings.api_version}/'
             if self._url:
                 response = post(
-                    url=f'{self._url}/login/',
+                    url=self._url + 'login/',
                     data={
                         'username': settings.user,
                         'password': settings.password,
                     },
                 )
-                print('huhu')
-                print(response.__dict__)
                 if response.status_code == 200:
                     bearer: str = response.json()['token']
                     self._client = Client(base_url=f'{self._url}/')
@@ -58,7 +56,7 @@ class ApiClient:
         logout from API
         """
         if self._connected:
-            response = self._client.get(url=f'{self._url}/logout/')
+            response = self._client.get(url=self._url + 'logout/')
             # should return 201 Logout Successful
             if response.status_code == 201:
                 # self.logger.debug("Logout.")
@@ -71,7 +69,7 @@ class ApiClient:
         """
         Make a GET Request to the VC Publisher API.
 
-        :param endpoint: api endpoint like `/projects/`
+        :param endpoint: api endpoint like `projects/`
         :param headers:
         :param stream: just for file downloads, default False
         :return: Response
@@ -90,10 +88,10 @@ class ApiClient:
             return response
 
         if self._connected:
-            get_it()
+            return get_it()
         else:
             if self.__login__():
-                get_it()
+                return get_it()
             else:
                 response = Response(status_code=502)
                 return response
@@ -101,7 +99,7 @@ class ApiClient:
     def post(
         self,
         endpoint: str,
-        data: dict = None,
+        data: Optional[dict] = None,
         json=None,
         files=None,
         *args,
@@ -110,7 +108,7 @@ class ApiClient:
         """
         Make a POST Request to the VC Publisher API.
 
-        :param endpoint: api endpoint like `/project/`
+        :param endpoint: api endpoint like `project/`
         :param data: dictionary delivered in request body
         :param json:
         :param files:
@@ -132,10 +130,10 @@ class ApiClient:
             return response
 
         if self._connected:
-            post_it()
+            return post_it()
         else:
             if self.__login__():
-                post_it()
+                return post_it()
             else:
                 response = Response(status_code=502)
                 return response
@@ -144,7 +142,7 @@ class ApiClient:
         """
         Make a DELETE Request to the VC Publisher API.
 
-        :param endpoint: api endpoint like `/project/<project_id>/`
+        :param endpoint: api endpoint like `project/<project_id>/`
         :param headers: json like dict
         :return: Response as dict
         """
@@ -160,16 +158,16 @@ class ApiClient:
             return response
 
         if self._connected:
-            delete_it()
+            return delete_it()
         else:
             if self.__login__():
-                delete_it()
+                return delete_it()
             else:
                 response = Response(status_code=502)
                 return response
 
     def put(
-        self, endpoint: str, data: dict = None, json=None, files=None
+        self, endpoint: str, data: Optional[dict] = None, json=None, files=None
     ) -> Response:
         """
         Make a PUT Request to the VC Publisher API.
@@ -190,10 +188,10 @@ class ApiClient:
             return response
 
         if self._connected:
-            put_it()
+            return put_it()
         else:
             if self.__login__():
-                put_it()
+                return put_it()
             else:
                 response = Response(status_code=502)
                 return response
@@ -202,7 +200,7 @@ class ApiClient:
         self,
         method: str,
         endpoint: str,
-        data: dict = None,
+        data: Optional[dict] = None,
         json=None,
         files=None,
     ):
@@ -219,42 +217,3 @@ class ApiClient:
             extensions={'trace': log},
         )
         return response
-
-    def get_projects(self):
-        """
-        not implemented yet
-
-        Get all projects
-
-        :return: list of projects
-        """
-        pass
-
-    def get_project(self, project_id: str):
-        """
-        not implemented yet
-
-        Get project by id
-
-        :return: project
-        """
-        response: Response = self.get(
-            endpoint=f'project/{project_id}/',
-        )
-        print('get_project')
-        print(response.__dict__)
-        if response.status_code == codes.OK:
-            return from_dict(data_class=Project, data=response.json())
-
-    def get_databases(self):
-        """
-        not implemented yet
-
-        Get all databases
-
-        :return: list of databases
-        """
-        pass
-
-    def test(self):
-        print('test')

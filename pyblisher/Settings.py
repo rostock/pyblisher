@@ -1,5 +1,10 @@
 import tomllib
+from datetime import datetime
 from pathlib import Path
+
+from dacite import Config
+
+from .helpers import parse_datetime
 
 
 class Settings:
@@ -19,6 +24,7 @@ class Settings:
     """
 
     _instance = None
+    dacite_config = Config(type_hooks={datetime: parse_datetime})
 
     def __new__(cls):
         """
