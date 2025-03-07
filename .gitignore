@@ -1,0 +1,14 @@
+# Directories
+.zed/*
+.venv/*
+.ruff_cache/*
+API/*
+dist/*
+testfiles/*
+
+# Files
+pyrightconfig.json
+test.py
+pyblisher.json
+uv.lock
+.python-version
