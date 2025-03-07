@@ -8,3 +8,7 @@ testfiles/*
 
 # Files
 pyrightconfig.json
+test.py
+pyblisher.json
+uv.lock
+.python-version
