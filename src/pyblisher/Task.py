@@ -2,7 +2,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
-from .client import ApiClient
+from .client import ApiClient, client
+from .types import Schedule
 
 
 @dataclass
@@ -63,7 +64,7 @@ class Task:
     """
 
     # Internal attributes
-    _api: ApiClient = field(default=ApiClient(), init=False, repr=False)
+    _api: ApiClient = field(default=client, init=False, repr=False)
     _endpoint: str = field(init=False, repr=False)
 
     # Required attributes
@@ -81,7 +82,7 @@ class Task:
     projectId: str
     priority: int
     parameters: dict
-    schedule: dict
+    schedule: Schedule
 
     # Optional attributes
     name: Optional[str]

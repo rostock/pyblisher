@@ -1,10 +1,12 @@
+import json
 import tomllib
 from datetime import datetime
 from pathlib import Path
 
 from dacite import Config
 
-from .helpers import parse_datetime
+from .helpers import parse_datetime, parse_source_property
+from .types import SourceProperty
 
 
 class Settings:
@@ -24,7 +26,12 @@ class Settings:
     """
 
     _instance = None
-    dacite_config = Config(type_hooks={datetime: parse_datetime})
+    dacite_config = Config(
+        type_hooks={
+            datetime: parse_datetime,
+            SourceProperty: parse_source_property,
+        },
+    )
 
     def __new__(cls):
         """
@@ -39,15 +46,21 @@ class Settings:
         """
         This function tries to load settings from different sources.
         """
-        # 1. Versuche Django Settings zu laden
+        # 1. Try to load settings from Django settings.
         if self._load_django_settings():
             print('loaded settings from Django settings')
             return
 
-        # 2. Versuche pyblisher.toml zu laden.
-        elif self._load_toml_config():
-            print('loaded settings from pyblisher.toml')
+        # 2. Try to load settings from pyblisher.json.
+        elif self._load_json_config():
+            print('loaded settings from pyblisher.json')
             return
+
+        # 3. Try to load settings from pyproject.toml.
+        elif self._load_toml_config():
+            print('loaded settings from pyproject.toml')
+            return
+        # If no settings are found, raise an AttributeError.
         else:
             print('no settings found')
             raise AttributeError(
@@ -74,22 +87,39 @@ class Settings:
         This function tries to load settings from a pyblisher.toml file.
         """
         try:
-            # Suche pyblisher.toml im aktuellen Projektverzeichnis
-            config_path = Path.cwd() / 'pyblisher.toml'
+            # Look for pyproject.toml in the current project directory
+            config_path = Path.cwd() / 'pyproject.toml'
             if config_path.exists():
                 with open(
                     config_path, 'rb'
-                ) as f:  # TOML muss im binary mode gelesen werden
+                ) as f:  # TOML must be read in binary mode
                     config = tomllib.load(f)
-                    if (
-                        'pyblisher' in config
-                    ):  # Wir erwarten einen [pyblisher] Abschnitt
-                        # self._settings.update(config["pyblisher"])
+                    if 'pyblisher' in config:
+                        # Look for [pyblisher] section in pyproject.toml
                         for key, value in config['pyblisher'].items():
                             setattr(self, key.lower(), value)
                     return True
         except Exception as e:
-            print(f'Warnung: Konnte pyblisher.toml nicht laden: {e}')
+            print(f'Warning: Can not load pyblisher settings. {e}')
+        return False
+
+    def _load_json_config(self) -> bool:
+        """
+        This function tries to load settings from a pyblisher.json file.
+        """
+        try:
+            # Look for pyblisher.json in the current project directory
+            config_path = Path.cwd() / 'pyblisher.json'
+            if config_path.exists():
+                with open(
+                    config_path, 'r'
+                ) as f:  # JSON must be read in text mode
+                    config = json.load(f)
+                    for key, value in config.items():
+                        setattr(self, key.lower(), value)
+                    return True
+        except Exception as e:
+            print(f'Warning: Can not load pyblisher settings. {e}')
         return False
 
     def __getattr__(self, name: str):

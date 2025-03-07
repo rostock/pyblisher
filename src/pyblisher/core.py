@@ -1,9 +1,10 @@
 from dacite import from_dict
 from httpx import Response
 
-from .client import ApiClient
+from .client import client
 from .Project import Project
 from .Settings import settings
+from .types import ApiClientProtocol
 from .User import User
 
 
@@ -16,7 +17,7 @@ def get_project(project_id: str) -> Project:
     :return: project
     :rtype: Project
     """
-    api = ApiClient()
+    api: ApiClientProtocol = client
     response: Response = api.get(
         endpoint=f'project/{project_id}/',
     )
@@ -40,7 +41,7 @@ def get_user(user_id: str) -> User:
     :return: user
     :rtype: User
     """
-    api = ApiClient()
+    api: ApiClientProtocol = client
     response: Response = api.get(
         endpoint=f'user/{user_id}/',
     )

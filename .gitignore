@@ -1,6 +1,10 @@
 # Directories
-zed/*
-venv/*
+.zed/*
+.venv/*
+.ruff_cache/*
+API/*
+dist/*
+testfiles/*
 
 # Files
 pyrightconfig.json

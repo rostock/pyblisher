@@ -1,48 +1,50 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 
-from .client import ApiClient
+from .client import client
+from .types import ApiClientProtocol, SourceProperty
 
 
 @dataclass
 class Source:
     """
     This class implements the structure of Datasources of the VC Publisher API.
-
-    :attribute _id: datasource id
-    :atype _id: str
-    :attribute name: datasource name
-    :atype name: str
-    :attribute description: datasource description
-    :atype description: str
-    :attribute typeProperties: datasource type properties
-    :atype typeProperties: dict
-    :attribute sourceProperties: datasource source properties
-    :atype sourceProperties: dict
-    :attribute type: datasource type
-    :atype type: str
     """
 
     # Internal attributes
-    _api: ApiClient = field(default=ApiClient(), init=False, repr=False)
+    _api: ApiClientProtocol = field(default=client, init=False, repr=False)
     _endpoint: str = field(init=False, repr=False)
+
     # required api attributes
     _id: str
     name: str
     properties: dict
     typeProperties: dict
-    sourceProperties: dict
-    type: str
+    sourceProperties: SourceProperty
+    type: Literal[
+        'tileset',
+        'tilesetupdate',
+        'geojson',
+        'oblique',
+        'qmesh',
+        'meshinmesh',
+        'wms',
+        'wmts',
+        'tms',
+        'vectortiles',
+        'generic',
+    ]
     dataUpdatedAt: datetime
-    dataUpdatedBy: str | None
+    dataUpdatedBy: str | None  # api could return it with value null
     projectId: str
     uri: str
     jobIds: list[str]
     publishTaskIds: list[str]
+
     # optional api attributes
     description: Optional[str] = ''
-    bbox: Optional[list] = None
+    bbox: Optional[list[float]] = None
 
     def publish(
         self,

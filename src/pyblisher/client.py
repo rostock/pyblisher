@@ -1,9 +1,10 @@
-from typing import Optional
+from typing import Any, Optional
 
 from httpx import Client, Response, post
 
-from pyblisher.auth import BearerAuth
-from pyblisher.Settings import settings
+from .auth import BearerAuth
+from .Settings import settings
+from .types import ApiClientProtocol
 
 
 def log(event_name, info):
@@ -13,7 +14,7 @@ def log(event_name, info):
     print(event_name, info)
 
 
-class ApiClient:
+class ApiClient(ApiClientProtocol):
     _instance = None
     _connected = False
     _url: str = ''
@@ -81,10 +82,8 @@ class ApiClient:
             """
             url = self._url + endpoint
             response: Response = self._client.get(
-                url=url, headers=headers, extensions={'trace': log}
+                url=url, headers=headers, extensions={}
             )
-            print('get_it')
-            print(response.__dict__)
             return response
 
         if self._connected:
@@ -125,7 +124,7 @@ class ApiClient:
                 data=data,
                 json=json,
                 files=files,
-                extensions={'trace': log},
+                extensions={},
             )
             return response
 
@@ -198,22 +197,35 @@ class ApiClient:
 
     def stream(
         self,
-        method: str,
         endpoint: str,
-        data: Optional[dict] = None,
-        json=None,
-        files=None,
-    ):
+        params: Optional[dict] = None,
+    ) -> Any:
         """
-        Stream a request
+        Führt einen Streaming-Request aus und gibt einen Generator zurück,
+        der über die Bytes des Response iteriert. Der HTTP-Stream wird hier
+        innerhalb eines with-Blocks geöffnet und automatisch geschlossen,
+        wenn der Generator erschöpft ist.
         """
-        url = self._url + endpoint
-        response = self._client.stream(
-            method=method,
-            url=url,
-            data=data,
-            json=json,
-            files=files,
-            extensions={'trace': log},
-        )
-        return response
+
+        def stream_it():
+            """
+            Stream Request
+            """
+            url = self._url + endpoint
+            return self._client.stream(
+                method='GET',
+                url=url,
+                params=params,
+            )
+
+        if self._connected:
+            return stream_it()
+        else:
+            if self.__login__():
+                return stream_it()
+            else:
+                response = Response(status_code=502)
+                return response
+
+
+client = ApiClient()
