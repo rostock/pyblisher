@@ -86,9 +86,62 @@ bucket = p.get_bucket(id=<bucket id>)
 # create new data bucket
 bucket = p.create_bucket(name="new bucket")
 
+# upload a file to the data bucket
+bucket.upload(key=<object_key>, path="path/to/file")
+
+# download a file from the data bucket
+with bucket.download_file(key=<object_key>) as response:
+    with open("path/to/save/file", "wb") as f:
+        for byte in response.iter_bytes():
+            f.write(byte)
+
+# download a folder or file from the data bucket as tar.gz
+with bucket.download(key=<object_key>) as response:
+    with open("path/to/save/file.tar.gz", "wb") as f:
+        for byte in response.iter_bytes():
+            f.write(byte)
+```
+
+Create a new datasource or get an existing one:
+```python
+# create new datasource with existing bucket
+source = p.create_source(
+    name="new source",
+    sourceProperties={
+        "type": "internal",
+        "dataBucketId": <bucket id>,
+        "dataBucketKey": "/"
+    },
+    type="tileset"
+)
+
 # get existing datasource
 source = p.get_source(id=<source id>)
+```
 
+Create a new task or get an existing one:
+```python
+# create new task
+task = p.create_task(
+	name="Crazy Task name",
+	parameters: {
+		epsgCode: 25833, # your prefered epsg code
+		dataset: {
+			type: "internal",
+			dataBucketId: <bucket id>,
+			dataBucketKey: "/"  # Pfad innerhalb des Buckets
+		},
+		datasource: {
+		    "command": "update",
+		    "datasourceId": <source id>,
+	    }
+	},
+	jobType: "pointcloud",
+	schedule: {type: "immediate"}
+)
+
+# get existing task
+task = p.get_task(id=<task id>)
 ```
 
 # Missing Features?

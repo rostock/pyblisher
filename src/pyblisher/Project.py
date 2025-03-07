@@ -188,7 +188,7 @@ class Project:
                 )
 
     ############## Datasources ##############
-    def create_datasource(
+    def create_source(
         self,
         name: str,
         sourceProperties: Union[InternalSource, ExternalSource],
@@ -271,7 +271,7 @@ class Project:
                     f'Failed to create datasource. Response: {response.__dict__}'
                 )
 
-    def get_datasource(self, id: str):
+    def get_source(self, id: str):
         """
         Get a datasource for this project.
         """
@@ -302,7 +302,7 @@ class Project:
                     f'Failed to get datasource. Response: {response.__dict__}'
                 )
 
-    def get_datasources(self):
+    def get_sources(self):
         """
         Get all datasources for this project.
         """
