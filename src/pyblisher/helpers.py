@@ -4,12 +4,8 @@ from datetime import datetime
 from tqdm import tqdm
 
 from .types import (
-    CronSchedule,
     ExternalSource,
-    ImmediateSchedule,
     InternalSource,
-    Schedule,
-    ScheduledSchedule,
     SourceProperty,
 )
 
@@ -43,25 +39,6 @@ def parse_source_property(value: dict) -> SourceProperty:
         return InternalSource(**value)
     else:
         raise ValueError(f'Unknown SourceProperty type: {value["type"]}')
-
-
-def parse_schedule(value: dict) -> Schedule:
-    """
-    Type-hook for dacite to parse Schedule from dict.
-
-    :param value: Schedule as dict
-    :type value: dict
-    :return: Schedule
-    :rtype: Schedule
-    """
-    if value['type'] == 'immediate':
-        return ImmediateSchedule(**value)
-    elif value['type'] == 'scheduled':
-        return ScheduledSchedule(**value)
-    elif value['type'] == 'cron':
-        return CronSchedule(**value)
-    else:
-        raise ValueError(f'Unknown Schedule type: {value["type"]}')
 
 
 ############## other ##############

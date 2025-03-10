@@ -124,7 +124,7 @@ Create a new task or get an existing one:
 # create new task
 task = p.create_task(
 	name="Crazy Task name",
-	parameters: {
+	parameters = {
 		epsgCode: 25833, # your prefered epsg code
 		dataset: {
 			type: "internal",
@@ -136,8 +136,8 @@ task = p.create_task(
 		    "datasourceId": <source id>,
 	    }
 	},
-	jobType: "pointcloud",
-	schedule: {type: "immediate"}
+	jobType = "pointcloud",
+	schedule = Schedule(type="immediate")
 )
 
 # get existing task

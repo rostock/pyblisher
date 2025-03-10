@@ -90,40 +90,23 @@ class InternalSource(SourceProperty):
 class Schedule:
     """
     Schedule is a TypedDict that represents the schedule attribute of the Task
-    class. It defines the schedule of a Task.
+    class.
+    There are three types of schedules: immediate, scheduled, and cron.
+    For immediate schedules, the type attribute is required.
+    For scheduled schedules, the type and scheduled attributes are required.
+    For cron schedules, the type and cron attributes are required.
+    The suspended attribute is optional for scheduled and cron schedules.
+
+    :attr type: Literal['immediate', 'scheduled', 'cron']
+    :attr scheduled: Optional[str]
+    :attr cron: Optional[str]
+    :attr suspended: Optional[bool]
     """
 
     type: Literal['immediate', 'scheduled', 'cron']
-
-
-@dataclass
-class ImmediateSchedule(Schedule):
-    """
-    ImmediateSchedule is a TypedDict that represents the schedule attribute of
-    the Task class. It defines an immediate Task schedule.
-    """
-
-    type = 'immediate'
-
-
-class ScheduledSchedule(Schedule):
-    """
-    ScheduledSchedule is a TypedDict that represents the schedule attribute of
-    the Task class. It defines a scheduled Task schedule.
-    """
-
-    type = 'scheduled'
-    scheduled: str  # datetime in isoformat
-    suspended: Optional[bool]
-
-
-class CronSchedule(Schedule):
-    """
-    CronSchedule is a TypedDict that represents the schedule attribute of the
-    Task class. It defines a cron schedule for Tasks.
-    """
-
-    type = 'cron'
-    scheduled: str  # datetime in isoformat
-    cron: str
-    suspended: Optional[bool]
+    # for CronJobs and Scheduled Jobs, the scheduled attribute is required
+    scheduled: Optional[str] = None  # datetime in isoformat
+    # for CronJobs, the cron attribute is required
+    cron: Optional[str] = None
+    # for Scheduled Jobs and CronJobs, the suspended attribute is optional
+    suspended: Optional[bool] = None
