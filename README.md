@@ -58,13 +58,13 @@ If you are using the `pyproject.toml` file, it should have a pyblisher section l
 # a pyblisher section
 [pyblisher]
 # The URL of the VCPublisher (not the API)
-host = "https://your-publisher-url.tld",
+host = "https://your-publisher-url.tld"
 # The Version of the API, actually only "v1" is supported
-api_version = "v1",
+api_version = "v1"
 # The Username, which is used to authenticate at the API
-username = "username",
+username = "username"
 # The Password, which is used to authenticate at the API
-password = "password",
+password = "password"
 ```
 
 

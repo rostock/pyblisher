@@ -1,8 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "pyblisher"
 version = "0.1.0"
-description = "Add your description here"
+description = "A simple python interface for the VCPublish API by VCS."
 readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.11"
 dependencies = [
     "dacite>=1.8.1",
@@ -10,14 +15,20 @@ dependencies = [
     "tqdm>=4.67.1",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[project.urls]
+Repository = "https://github.com/rostock/pyblisher"
 
 [[tool.uv.index]]
 name = "testpypi"
-url = "https://test.pypi.org/simple/"
-publish-url = "https://test.pypi.org/legacy/"
+url = "https://__token__:TESTPYPI_TOKEN@test.pypi.org/simple/"
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://__token__:PYPI_TOKEN@pypi.org/simple/"
+default = true
+
+[tool.hatchling.build]
+packages = ["src/pyblisher"]
 
 [tool.ruff]
 line-length = 80
