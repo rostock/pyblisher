@@ -105,3 +105,6 @@ class Bucket:
         Initialize the API endpoint, after the object is created.
         """
         self._endpoint = f'project/{self.projectId}/data-bucket/{self._id}/'
+
+    def __str__(self) -> str:
+        return self._id

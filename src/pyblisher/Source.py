@@ -65,3 +65,6 @@ class Source:
         This function is called after the initialization of the object.
         """
         self._endpoint = f'project/{self.projectId}/datasource/{self._id}/'
+
+    def __str__(self) -> str:
+        return self._id
