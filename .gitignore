@@ -5,6 +5,7 @@
 API/*
 dist/*
 testfiles/*
+*/__pycache__/*
 
 # Files
 pyrightconfig.json
