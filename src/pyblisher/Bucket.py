@@ -99,6 +99,20 @@ class Bucket:
             params={'key': f'/{key}'},
         )
 
+    def delete_object(self, key: str):
+        """
+        Delete a bucket object.
+
+        :param key: key of the object
+        :type key: str
+        :return: Response
+        :rtype: Response
+        """
+        return self._api.delete(
+            self._endpoint + 'object/',
+            data={'key': f'/{key}'},
+        )
+
     ############## Dunder Methods ##############
     def __post_init__(self):
         """
