@@ -8,7 +8,7 @@ from .types import ApiClientProtocol
 from .User import User
 
 
-def get_project(project_id: str) -> Project:
+def get_project(id: str) -> Project:
     """
     Get project by id
 
@@ -19,7 +19,7 @@ def get_project(project_id: str) -> Project:
     """
     api: ApiClientProtocol = client
     response: Response = api.get(
-        endpoint=f'project/{project_id}/',
+        endpoint=f'project/{id}/',
     )
     match response.status_code:
         case 200:

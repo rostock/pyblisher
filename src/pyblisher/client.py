@@ -137,7 +137,12 @@ class ApiClient(ApiClientProtocol):
                 response = Response(status_code=502)
                 return response
 
-    def delete(self, endpoint: str, headers=None) -> Response:
+    def delete(
+        self,
+        endpoint: str,
+        headers: Optional[dict] = None,
+        data: Optional[dict] = None,
+    ) -> Response:
         """
         Make a DELETE Request to the VC Publisher API.
 

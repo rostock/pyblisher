@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyblisher"
-version = "0.2.0"
+version = "0.3.0"
 description = "A simple python interface for the VCPublish API by VCS."
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -30,7 +30,8 @@ publish-url = "https://upload.pypi.org/legacy/"
 default = true
 
 [tool.hatch.build]
-packages = ["src/pyblisher"]
+sources = ["src"]
+package = "pyblisher"
 
 [tool.ruff]
 line-length = 80

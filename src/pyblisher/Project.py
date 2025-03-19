@@ -14,7 +14,6 @@ from .Task import Task
 from .types import (
     ApiClientProtocol,
     ExternalSource,
-    ImmediateSchedule,
     InternalSource,
     Schedule,
 )
