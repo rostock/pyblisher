@@ -78,12 +78,16 @@ class InternalSource(SourceProperty):
     InternalSource is a dataclass that represents one structure of the
     sourceProperties attribute of the Source class.
     It defines the bucket and key of the internal source.
+
+    :attr dataBucketId: bucket id
+    :attr dataBucketKey: bucket key
+    :attr urlSuffix: Optional[str]
     """
 
     type = 'internal'
     dataBucketId: str
     dataBucketKey: str
-    urlSuffix: Optional[str]
+    urlSuffix: Optional[str] = None
 
 
 @dataclass
