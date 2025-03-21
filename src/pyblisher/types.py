@@ -23,7 +23,12 @@ class ApiClientProtocol(Protocol):
         """
         ...
 
-    def delete(self, endpoint: str) -> Response:
+    def delete(
+        self,
+        endpoint: str,
+        headers: Optional[dict] = None,
+        params: Optional[dict] = None,
+    ) -> Response:
         """
         Make a DELETE Request to the VC Publisher API.
 
@@ -32,7 +37,11 @@ class ApiClientProtocol(Protocol):
         ...
 
     def put(
-        self, endpoint: str, data: Optional[dict] = None, json=None, files=None
+        self,
+        endpoint: str,
+        data: Optional[dict] = None,
+        json: Optional[dict] = None,
+        files=None,
     ) -> Response:
         """
         Make a PUT Request to the VC Publisher API.

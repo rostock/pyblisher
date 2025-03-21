@@ -109,9 +109,18 @@ class Bucket:
         :rtype: Response
         """
         return self._api.delete(
-            self._endpoint + 'object/',
-            data={'key': f'/{key}'},
+            endpoint=self._endpoint + 'object/',
+            params={'key': f'/{key}'},
         )
+
+    def delete(self):
+        """
+        Delete the bucket.
+
+        :return: Response
+        :rtype: Response
+        """
+        return self._api.delete(endpoint=self._endpoint)
 
     ############## Dunder Methods ##############
     def __post_init__(self):

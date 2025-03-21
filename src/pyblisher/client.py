@@ -141,14 +141,19 @@ class ApiClient(ApiClientProtocol):
         self,
         endpoint: str,
         headers: Optional[dict] = None,
-        data: Optional[dict] = None,
+        params: Optional[dict] = None,
     ) -> Response:
         """
         Make a DELETE Request to the VC Publisher API.
 
         :param endpoint: api endpoint like `project/<project_id>/`
-        :param headers: json like dict
+        :type endpoint: str
+        :param headers: Optional dict for headers
+        :type headers: Optional[dict]
+        :param params: Optional dict for query parameters
+        :type params: Optional[dict]
         :return: Response as dict
+        :rtype: Response
         """
 
         def delete_it():
@@ -157,7 +162,10 @@ class ApiClient(ApiClientProtocol):
             """
             url: str = self._url + endpoint
             response = self._client.delete(
-                url=url, headers=headers, extensions={'trace': log}
+                url=url,
+                headers=headers,
+                params=params,
+                extensions={'trace': log},
             )
             return response
 
