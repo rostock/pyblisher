@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyblisher"
-version = "0.3.1"
+version = "0.4.0"
 description = "A simple python interface for the VCPublish API by VCS."
 readme = "README.md"
 license = {file = "LICENSE"}
