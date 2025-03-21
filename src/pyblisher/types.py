@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 from typing import Any, Literal, Optional, Protocol
 
@@ -69,6 +70,9 @@ class SourceProperty:
 
     type: Literal['external', 'internal']
 
+    def to_dict(self) -> dict:
+        return self.__dict__
+
 
 @dataclass
 class ExternalSource(SourceProperty):
@@ -123,3 +127,19 @@ class Schedule:
     cron: Optional[str] = None
     # for Scheduled Jobs and CronJobs, the suspended attribute is optional
     suspended: Optional[bool] = None
+
+    def to_dict(self) -> dict:
+        return self.__dict__
+
+
+############## JSON Decoder ##############
+class PyblisherJSONEncoder(json.JSONEncoder):
+    """Custom JSON encoder for Pyblisher types"""
+
+    def default(self, o):
+        if isinstance(o, SourceProperty):
+            return o.to_dict()
+        elif isinstance(o, Schedule):
+            return o.to_dict()
+        else:
+            return super().default(o)

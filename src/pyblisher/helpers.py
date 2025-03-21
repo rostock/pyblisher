@@ -3,11 +3,7 @@ from datetime import datetime
 
 from tqdm import tqdm
 
-from .types import (
-    ExternalSource,
-    InternalSource,
-    SourceProperty,
-)
+from .types import ExternalSource, InternalSource, SourceProperty
 
 
 ############## Dacite Type-Hooks ##############
