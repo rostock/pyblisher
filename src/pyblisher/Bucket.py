@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 
+from httpx import Response
+
 from .client import client
 from .types import ApiClientProtocol
 
@@ -40,7 +42,7 @@ class Bucket:
     description: Optional[str] = None
     properties: Optional[dict] = None
 
-    def upload(self, key: str, path: str):
+    def upload(self, key: str, path: str) -> Response:
         """
         Upload a file to this bucket.
 
@@ -58,7 +60,7 @@ class Bucket:
             )
         return response
 
-    def download(self, key: str):
+    async def download(self, key: str):
         """
         Downloads a bucket object or folder as `.tar.gz`.
 
@@ -79,7 +81,7 @@ class Bucket:
             params={'key': f'/{key}'},
         )
 
-    def download_file(self, key: str):
+    async def download_file(self, key: str):
         """
         Download a bucket object.
 

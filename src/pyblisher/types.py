@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from typing import Any, Literal, Optional, Protocol
 
@@ -70,9 +69,6 @@ class SourceProperty:
 
     type: Literal['external', 'internal']
 
-    def to_dict(self) -> dict:
-        return self.__dict__
-
 
 @dataclass
 class ExternalSource(SourceProperty):
@@ -106,7 +102,7 @@ class InternalSource(SourceProperty):
 @dataclass
 class Schedule:
     """
-    Schedule is a TypedDict that represents the schedule attribute of the Task
+    Schedule is a dataclass that represents the schedule attribute of the Task
     class.
     There are three types of schedules: immediate, scheduled, and cron.
     For immediate schedules, the type attribute is required.
@@ -130,16 +126,3 @@ class Schedule:
 
     def to_dict(self) -> dict:
         return self.__dict__
-
-
-############## JSON Decoder ##############
-class PyblisherJSONEncoder(json.JSONEncoder):
-    """Custom JSON encoder for Pyblisher types"""
-
-    def default(self, o):
-        if isinstance(o, SourceProperty):
-            return o.to_dict()
-        elif isinstance(o, Schedule):
-            return o.to_dict()
-        else:
-            return super().default(o)

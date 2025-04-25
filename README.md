@@ -125,6 +125,7 @@ Create a new task or get an existing one:
 task = p.create_task(
 	name="Crazy Task name",
 	parameters = {
+	    command: "conversion",
 		epsgCode: 25833, # your prefered epsg code
 		dataset: {
 			type: "internal",

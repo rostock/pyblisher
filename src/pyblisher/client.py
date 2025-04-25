@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from httpx import Client, Response, post
+from httpx import AsyncClient, Client, Response, post
 
 from .auth import BearerAuth
 from .Settings import settings
@@ -46,7 +46,9 @@ class ApiClient(ApiClientProtocol):
                 if response.status_code == 200:
                     bearer: str = response.json()['token']
                     self._client = Client(base_url=f'{self._url}/')
+                    self._aclient = AsyncClient(base_url=f'{self._url}/')
                     self._client.auth = BearerAuth(bearer)
+                    self._aclient.auth = BearerAuth(bearer)
                     self._connected = True
                 else:
                     raise Exception(f'Login failed: {response.__dict__}')
@@ -99,7 +101,7 @@ class ApiClient(ApiClientProtocol):
         self,
         endpoint: str,
         data: Optional[dict] = None,
-        json=None,
+        json: Optional[dict] = None,
         files=None,
         *args,
         **kwargs,
@@ -179,7 +181,11 @@ class ApiClient(ApiClientProtocol):
                 return response
 
     def put(
-        self, endpoint: str, data: Optional[dict] = None, json=None, files=None
+        self,
+        endpoint: str,
+        data: Optional[dict] = None,
+        json: Optional[dict] = None,
+        files=None,
     ) -> Response:
         """
         Make a PUT Request to the VC Publisher API.
@@ -208,7 +214,7 @@ class ApiClient(ApiClientProtocol):
                 response = Response(status_code=502)
                 return response
 
-    def stream(
+    async def stream(
         self,
         endpoint: str,
         params: Optional[dict] = None,
@@ -220,12 +226,12 @@ class ApiClient(ApiClientProtocol):
         wenn der Generator erschöpft ist.
         """
 
-        def stream_it():
+        async def stream_it():
             """
             Stream Request
             """
             url = self._url + endpoint
-            return self._client.stream(
+            return self._aclient.stream(
                 method='GET',
                 url=url,
                 params=params,

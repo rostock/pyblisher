@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Literal, Optional, Union
+from typing import Literal, Optional
 
 from dacite import from_dict
 from httpx import Response
@@ -13,9 +13,6 @@ from .Source import Source
 from .Task import Task
 from .types import (
     ApiClientProtocol,
-    ExternalSource,
-    InternalSource,
-    Schedule,
 )
 
 
@@ -190,7 +187,7 @@ class Project:
     def create_source(
         self,
         name: str,
-        sourceProperties: Union[InternalSource, ExternalSource],
+        sourceProperties: dict,  # Union[InternalSource, ExternalSource],
         type: Literal[
             'tileset',
             'tilesetupdate',
@@ -324,7 +321,7 @@ class Project:
         name: str,
         parameters: dict,
         jobType: str,
-        schedule: Schedule,
+        schedule: dict,
         labels: Optional[list[str]] = None,
         tags: Optional[dict] = None,
         debugLevel: Optional[int] = None,  # 0-2
@@ -341,9 +338,8 @@ class Project:
             'name': name,
             'parameters': parameters,
             'jobType': jobType,
-            'schedule': schedule.__dict__,
+            'schedule': schedule,
         }
-        print(data)
         # add optional parameters
         if labels:
             data['labels'] = labels
@@ -367,6 +363,12 @@ class Project:
         )
         # validate response
         match response.status_code:
+            case 200:
+                return from_dict(
+                    data_class=Task,
+                    data=response.json(),
+                    config=settings.dacite_config,
+                )
             case 201:
                 return from_dict(
                     data_class=Task,
@@ -444,28 +446,3 @@ class Project:
         String representation of the object as its id.
         """
         return self._id
-
-    ############## Test Methods ##############
-    def test_task_create(self):
-        """
-        Test the create_task method.
-        """
-        task = self.create_task(
-            name='Crazy Task name',
-            parameters={
-                'command': 'conversion',
-                'epsgCode': 25833,
-                'datasource': {
-                    'command': 'update',
-                    'datasourceId': '1e78b0ab-1445-4e15-8d34-6d0eacf15889',
-                },
-                'dataset': {
-                    'type': 'internal',
-                    'dataBucketId': '287a24ab-a3bf-4d68-9d31-dfbd35ebdd46',
-                    'dataBucketKey': '/',
-                },
-            },
-            jobType='pointcloud',
-            schedule=ImmediateSchedule(type='immediate'),
-        )
-        return task
