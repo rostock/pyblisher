@@ -2,6 +2,13 @@ from dacite import from_dict
 from httpx import Response
 
 from .client import client
+from .exceptions import (
+    AuthenticationError,
+    InternalServerError,
+    MatchFailed,
+    ObjectNotFound,
+    PermissionError,
+)
 from .Project import Project
 from .Settings import settings
 from .types import ApiClientProtocol
@@ -27,6 +34,26 @@ def get_project(id: str) -> Project:
                 data_class=Project,
                 data=response.json(),
                 config=settings.dacite_config,
+            )
+        case 400:
+            raise MatchFailed(
+                f'{response.status_code} - {response.json()["reason"]}'
+            )
+        case 401:
+            raise AuthenticationError(
+                f'{response.status_code} - {response.json()["reason"]}'
+            )
+        case 403:
+            raise PermissionError(
+                f'{response.status_code} - {response.json()["reason"]}'
+            )
+        case 404:
+            raise ObjectNotFound(
+                f'{response.status_code} - {response.json()["reason"]}'
+            )
+        case 500:
+            raise InternalServerError(
+                f'{response.status_code} - {response.json()["reason"]}'
             )
         case _:
             raise Exception(f'Failed to get project. Response: {response}')

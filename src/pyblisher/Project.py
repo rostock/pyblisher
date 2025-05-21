@@ -7,13 +7,17 @@ from httpx import Response
 
 from .Bucket import Bucket
 from .client import client
-from .exceptions import AuthenticationError, ObjectNotFound
+from .exceptions import (
+    AuthenticationError,
+    ObjectNotFound,
+    MatchFailed,
+    InternalServerError,
+    PermissionError,
+)
 from .Settings import settings
 from .Source import Source
 from .Task import Task
-from .types import (
-    ApiClientProtocol,
-)
+from .types import ApiClientProtocol
 
 
 @dataclass
@@ -89,8 +93,7 @@ class Project:
 
         # send post request
         response = self._api.post(
-            endpoint=self._endpoint + 'data-bucket/',
-            json=data,
+            endpoint=self._endpoint + 'data-bucket/', json=data
         )
         # validate response
         match response.status_code:
@@ -100,12 +103,20 @@ class Project:
                     data=response.json(),
                     config=settings.dacite_config,
                 )
+            case 400:  # Match failed
+                raise MatchFailed(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
             case 401:  # Authentication failed
                 raise AuthenticationError(
                     f'{response.status_code} - {response.json()["reason"]}'
                 )
             case 403:  # Permission denied
                 raise PermissionError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 500:  # Internal server error
+                raise InternalServerError(
                     f'{response.status_code} - {response.json()["reason"]}'
                 )
             case _:  # All other cases
@@ -130,6 +141,10 @@ class Project:
                     data=response.json(),
                     config=settings.dacite_config,
                 )
+            case 400:  # Match failed
+                raise MatchFailed(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
             case 401:  # Authentication failed
                 raise AuthenticationError(
                     f'{response.status_code} - {response.json()["reason"]}'
@@ -145,6 +160,69 @@ class Project:
             case _:  # All other cases
                 raise Exception(
                     f'Failed to get bucket. Response: {response.__dict__}'
+                )
+
+    def update_bucket(
+        self,
+        id: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        properties: Optional[dict] = None,
+    ) -> Bucket:
+        """]
+        Update a bucket for this project.
+
+        :param id: bucket id
+        :type id: str
+        :param name: updated Bucket name
+        :type name: Optional[str]
+        :param description: updated Bucket description
+        :type description: Optional[str]
+        :param properties: updated Bucket properties
+        :type properties: Optional[dict]
+        return: updated bucket
+        :rtype: Bucket
+        """
+        # prepare put request data
+        data = {}
+        if name:
+            data['name'] = name
+        if description:
+            data['description'] = description
+        if properties:
+            data['properties'] = properties
+
+        # send put request
+        response = self._api.put(
+            endpoint=self._endpoint + f'data-bucket/{id}/', json=data
+        )
+        # validate response
+        match response.status_code:
+            case 200:  # OK
+                return from_dict(
+                    data_class=Bucket,
+                    data=response.json(),
+                    config=settings.dacite_config,
+                )
+            case 400:  # Match failed
+                raise MatchFailed(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 401:  # Authentication failed
+                raise AuthenticationError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 403:  # Permission denied
+                raise PermissionError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 500:  # Internal server error
+                raise InternalServerError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case _:  # All other cases
+                raise Exception(
+                    f'Failed to update bucket. Response: {response.__dict__}'
                 )
 
     def get_buckets(self) -> list[Bucket]:
@@ -243,8 +321,7 @@ class Project:
 
         # send post request
         response: Response = self._api.post(
-            endpoint=self._endpoint + 'datasource/',
-            json=data,
+            endpoint=self._endpoint + 'datasource/', json=data
         )
         # validate response
         match response.status_code:
@@ -272,7 +349,7 @@ class Project:
         Get a datasource for this project.
         """
         response: Response = self._api.get(
-            endpoint=self._endpoint + f'datasource/{id}/',
+            endpoint=self._endpoint + f'datasource/{id}/'
         )
         match response.status_code:
             case 200:
@@ -303,7 +380,7 @@ class Project:
         Get all datasources for this project.
         """
         response: Response = self._api.get(
-            endpoint=self._endpoint + 'datasources/',
+            endpoint=self._endpoint + 'datasources/'
         )
         datasources = [
             from_dict(
@@ -357,10 +434,7 @@ class Project:
             data['jobVersion'] = jobVersion
 
         # send post request
-        response = self._api.post(
-            endpoint=self._endpoint + 'task/',
-            json=data,
-        )
+        response = self._api.post(endpoint=self._endpoint + 'task/', json=data)
         # validate response
         match response.status_code:
             case 200:
@@ -425,11 +499,7 @@ class Project:
         """
         response: Response = self._api.get(endpoint=self._endpoint + 'tasks/')
         tasks = [
-            from_dict(
-                data_class=Task,
-                data=task,
-                config=settings.dacite_config,
-            )
+            from_dict(data_class=Task, data=task, config=settings.dacite_config)
             for task in response.json()['items']
         ]
         return tasks

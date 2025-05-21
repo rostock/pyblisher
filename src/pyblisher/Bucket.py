@@ -1,11 +1,12 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
-
-from httpx import Response
+from typing import TYPE_CHECKING, Optional
 
 from .client import client
 from .types import ApiClientProtocol
+
+if TYPE_CHECKING:
+    from httpx import Response
 
 
 @dataclass
@@ -55,12 +56,12 @@ class Bucket:
         """
         with open(path, 'rb') as file:
             response = self._api.post(
-                self._endpoint + 'upload/',
+                endpoint=self._endpoint + 'upload/',
                 files={key: file},
             )
         return response
 
-    async def download(self, key: str):
+    def download(self, key: str):
         """
         Downloads a bucket object or folder as `.tar.gz`.
 
@@ -81,7 +82,7 @@ class Bucket:
             params={'key': f'/{key}'},
         )
 
-    async def download_file(self, key: str):
+    def download_file(self, key: str):
         """
         Download a bucket object.
 
