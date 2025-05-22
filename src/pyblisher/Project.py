@@ -17,7 +17,7 @@ from .exceptions import (
 from .Settings import settings
 from .Source import Source
 from .Task import Task
-from .types import ApiClientProtocol
+from .types import ApiClientProtocol, Schedule
 
 
 @dataclass
@@ -437,24 +437,32 @@ class Project:
         response = self._api.post(endpoint=self._endpoint + 'task/', json=data)
         # validate response
         match response.status_code:
-            case 200:
+            case 200:  # OK
                 return from_dict(
                     data_class=Task,
                     data=response.json(),
                     config=settings.dacite_config,
                 )
-            case 201:
+            case 201:  # Created
                 return from_dict(
                     data_class=Task,
                     data=response.json(),
                     config=settings.dacite_config,
                 )
-            case 401:
+            case 400:  # Match failed
+                raise MatchFailed(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 401:  # Authentication failed
                 raise AuthenticationError(
                     f'{response.status_code} - {response.json()["reason"]}'
                 )
             case 403:
                 raise PermissionError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 500:  # Internal server error
+                raise InternalServerError(
                     f'{response.status_code} - {response.json()["reason"]}'
                 )
             case _:
@@ -491,6 +499,99 @@ class Project:
             case _:
                 raise Exception(
                     f'Failed to get task. Response: {response.__dict__}'
+                )
+
+    def update_task(
+        self,
+        id: str,
+        labels: Optional[list],
+        tags: Optional[dict],
+        debugLevel: Optional[int],  # 0-2
+        priority: Optional[int],
+        name: Optional[str],
+        description: Optional[str],
+        parameters: Optional[dict],
+        properties: Optional[dict],
+        schedule: Optional[dict],
+    ):
+        """
+        Update a task of this project.
+
+        :param id: task id
+        :type id: str
+        :param labels: updated task labels
+        :type labels: Optional[list]
+        :param tags: updated task tags
+        :type tags: Optional[dict]
+        :param debugLevel: updated task debug level
+        :type debugLevel: Optional[int]
+        :param priority: updated task priority
+        :type priority: Optional[int]
+        :param name: updated task name
+        :type name: Optional[str]
+        :param description: updated task description
+        :type description: Optional[str]
+        :param parameters: updated task parameters
+        :type parameters: Optional[dict]
+        :param properties: updated task properties
+        :type properties: Optional[dict]
+        :param schedule: updated task schedule
+        :type schedule: Optional[Schedule]
+        :return: updated task
+        :rtype: Task
+        """
+        # prepare put request data
+        data = {}
+        if labels:
+            data['labels'] = labels
+        if tags:
+            data['tags'] = tags
+        if debugLevel:
+            data['debugLevel'] = debugLevel
+        if priority:
+            data['priority'] = priority
+        if name:
+            data['name'] = name
+        if description:
+            data['description'] = description
+        if parameters:
+            data['parameters'] = parameters
+        if properties:
+            data['properties'] = properties
+        if schedule:
+            data['schedule'] = schedule
+
+        # send put request
+        response: Response = self._api.put(
+            endpoint=self._endpoint + f'task/{id}/', json=data
+        )
+        # validate response
+        match response.status_code:
+            case 200:  # OK
+                return from_dict(
+                    data_class=Task,
+                    data=response.json(),
+                    config=settings.dacite_config,
+                )
+            case 400:  # Match failed
+                raise MatchFailed(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 401:  # Authentication failed
+                raise AuthenticationError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 403:  # Permission denied
+                raise PermissionError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 500:  # Internal server error
+                raise InternalServerError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case _:  # All other cases
+                raise Exception(
+                    f'Failed to update task. Response: {response.__dict__}'
                 )
 
     def get_tasks(self):
