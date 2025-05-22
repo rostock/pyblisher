@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from .client import client
 from .types import ApiClientProtocol
 
-if TYPE_CHECKING:
-    from httpx import Response
+from httpx import Response
 
 
 @dataclass

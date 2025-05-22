@@ -17,7 +17,7 @@ from .exceptions import (
 from .Settings import settings
 from .Source import Source
 from .Task import Task
-from .types import ApiClientProtocol, Schedule
+from .types import ApiClientProtocol
 
 
 @dataclass
