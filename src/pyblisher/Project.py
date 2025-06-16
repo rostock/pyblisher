@@ -504,6 +504,7 @@ class Project:
     def update_task(
         self,
         id: str,
+        overwriteParameters: bool = False,
         labels: Optional[list],
         tags: Optional[dict],
         debugLevel: Optional[int],  # 0-2
@@ -512,13 +513,15 @@ class Project:
         description: Optional[str],
         parameters: Optional[dict],
         properties: Optional[dict],
-        schedule: Optional[dict],
+        schedule: Optional[dict]
     ):
         """
         Update a task of this project.
 
         :param id: task id
         :type id: str
+        :param overwriteParameters: whether to overwrite parameters (default=False)
+        :type overwriteParameters: bool
         :param labels: updated task labels
         :type labels: Optional[list]
         :param tags: updated task tags
@@ -563,8 +566,11 @@ class Project:
 
         # send put request
         response: Response = self._api.put(
-            endpoint=self._endpoint + f'task/{id}/', json=data
+            endpoint=self._endpoint + f'task/{id}/',
+            json=data,
+            params={'overwriteParameters': overwriteParameters},
         )
+
         # validate response
         match response.status_code:
             case 200:  # OK

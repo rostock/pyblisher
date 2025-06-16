@@ -37,7 +37,7 @@ class Task:
     :atype labels: list
     :attribute properties: task properties
     :atype properties: dict
-    :attribute tags: task tags
+    :attribute tags: task tags: additional metadata attributes not used by the Publisher
     :atype tags: dict
     :attribute debugLevel: task debug level
     :atype debugLevel: int
