@@ -124,6 +124,21 @@ class Bucket:
         """
         return self._api.delete(endpoint=self._endpoint)
 
+    def reference(self, dataBucketKey: str = '/'):
+        """
+        Returns the Bucket as Reference Object for Datasource Creation or for Task-Dataset-Parameters.
+
+        :param dataBucketKey: key of the bucket
+        :type dataBucketKey: str
+        :return: Bucket as Parameter Object for Dataset oder Datasource definition. Default: "/"
+        :rtype: dict
+        """
+        return {
+            'type': 'internal',
+            'dataBucketId': self._id,
+            'dataBucketKey': dataBucketKey,
+        }
+
     ############## Dunder Methods ##############
     def __post_init__(self):
         """
