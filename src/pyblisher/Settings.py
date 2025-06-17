@@ -72,7 +72,7 @@ class Settings:
         This function tries to load settings from Django settings.
         """
         try:
-            from django.conf import settings
+            from django.conf import settings  # type: ignore[import-not-found]
 
             if hasattr(settings, 'PYBLISHER'):
                 for key, value in settings.PYBLISHER.items():

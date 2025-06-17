@@ -5,7 +5,11 @@ from httpx import Response
 
 
 class ApiClientProtocol(Protocol):
-    def get(self, endpoint: str) -> Response:
+    def get(
+        self,
+        endpoint: str,
+        params: Optional[dict] = None,
+    ) -> Response:
         """
         Make a GET Request to the VC Publisher API.
 
@@ -14,7 +18,12 @@ class ApiClientProtocol(Protocol):
         ...
 
     def post(
-        self, endpoint: str, data: Optional[dict] = None, json=None, files=None
+        self,
+        endpoint: str,
+        data: Optional[dict] = None,
+        json: Optional[dict] = None,
+        params: Optional[dict] = None,
+        files: Optional[Any] = None,
     ) -> Response:
         """
         Make a POST Request to the VC Publisher API.
@@ -41,14 +50,19 @@ class ApiClientProtocol(Protocol):
         endpoint: str,
         data: Optional[dict] = None,
         json: Optional[dict] = None,
-        files=None,
+        params: Optional[dict] = None,
+        files: Optional[Any] = None,
     ) -> Response:
         """
         Make a PUT Request to the VC Publisher API.
         """
         ...
 
-    def stream(self, endpoint: str, params: Optional[dict] = None) -> Any:
+    def stream(
+        self,
+        endpoint: str,
+        params: Optional[dict] = None,
+    ) -> Any:
         """
         Make a streaming request to the VC Publisher API.
 

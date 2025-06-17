@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyblisher"
-version = "0.6.1"
+version = "0.6.2"
 description = "A simple python interface for the VCPublish API by VCS."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -31,7 +31,12 @@ line-length = 100
 quote-style = "single"
 skip-magic-trailing-comma = false
 
-
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+
+[tool.mypy]
+python_executable = ".venv/bin/python"
+
+[dependency-groups]
+dev = ["mypy>=1.16.1", "ruff>=0.11.13", "types-tqdm>=4.67.0.20250516"]

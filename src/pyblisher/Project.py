@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 from dacite import from_dict
 from httpx import Response
@@ -184,7 +184,7 @@ class Project:
         :rtype: Bucket
         """
         # prepare put request data
-        data = {}
+        data: dict[str, Any] = {}
         if name:
             data['name'] = name
         if description:
@@ -411,7 +411,7 @@ class Project:
         Create a task for this project.
         """
         # prepare post request data
-        data = {
+        data: dict[str, Any] = {
             'name': name,
             'parameters': parameters,
             'jobType': jobType,
@@ -544,7 +544,7 @@ class Project:
         :rtype: Task
         """
         # prepare put request data
-        data = {}
+        data: dict[str, Any] = {}
         if labels:
             data['labels'] = labels
         if tags:

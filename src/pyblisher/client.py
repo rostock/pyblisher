@@ -44,7 +44,7 @@ class ApiClient(ApiClientProtocol):
                     },
                 )
                 if response.status_code == 200:
-                    bearer: str = response.json()['token']
+                    bearer = response.json()['token']
                     self._client = Client(base_url=f'{self._url}/')
                     self._aclient = AsyncClient(base_url=f'{self._url}/')
                     self._client.auth = BearerAuth(bearer)
@@ -68,7 +68,9 @@ class ApiClient(ApiClientProtocol):
                 # self.logger.warning(f"Logout failed: {response.json()}")
                 print(f'Logout failed: {response.__dict__}')
 
-    def get(self, endpoint: str, headers=None, *args, **kwargs) -> Response:
+    def get(
+        self, endpoint: str, params: Optional[dict] = None, *args, **kwargs
+    ) -> Response:
         """
         Make a GET Request to the VC Publisher API.
 
@@ -84,7 +86,9 @@ class ApiClient(ApiClientProtocol):
             """
             url = self._url + endpoint
             response: Response = self._client.get(
-                url=url, headers=headers, extensions={}
+                url=url,
+                params=params,
+                extensions={},
             )
             return response
 
@@ -102,7 +106,8 @@ class ApiClient(ApiClientProtocol):
         endpoint: str,
         data: Optional[dict] = None,
         json: Optional[dict] = None,
-        files=None,
+        params: Optional[dict] = None,
+        files: Optional[Any] = None,
         *args,
         **kwargs,
     ) -> Response:
@@ -112,6 +117,7 @@ class ApiClient(ApiClientProtocol):
         :param endpoint: api endpoint like `project/`
         :param data: dictionary delivered in request body
         :param json:
+        :param params:
         :param files:
         :return:
         """
@@ -125,6 +131,7 @@ class ApiClient(ApiClientProtocol):
                 url=url,
                 data=data,
                 json=json,
+                params=params,
                 files=files,
                 extensions={},
             )
@@ -185,10 +192,23 @@ class ApiClient(ApiClientProtocol):
         endpoint: str,
         data: Optional[dict] = None,
         json: Optional[dict] = None,
-        files=None,
+        params: Optional[dict] = None,
+        files: Optional[Any] = None,
     ) -> Response:
         """
         Make a PUT Request to the VC Publisher API.
+
+        :param endpoint: The endpoint to PUT to.
+        :type endpoint: str
+        :param data: The data to PUT.
+        :type data: Optional[dict]
+        :param json: The JSON data to PUT.
+        :type json: Optional[dict]
+        :param params: The parameters to PUT.
+        :type params: Optional[dict]
+        :param files: The files to PUT.
+        :type files: Optional[Any]
+        :return: The response from the API.
         """
 
         def put_it():
@@ -200,6 +220,7 @@ class ApiClient(ApiClientProtocol):
                 url=url,
                 data=data,
                 json=json,
+                params=params,
                 files=files,
                 extensions={'trace': log},
             )
