@@ -504,7 +504,6 @@ class Project:
     def update_task(
         self,
         id: str,
-        overwriteParameters: bool = False,
         labels: Optional[list],
         tags: Optional[dict],
         debugLevel: Optional[int],  # 0-2
@@ -513,15 +512,14 @@ class Project:
         description: Optional[str],
         parameters: Optional[dict],
         properties: Optional[dict],
-        schedule: Optional[dict]
+        schedule: Optional[dict],
+        overwriteParameters: bool = False,
     ):
         """
         Update a task of this project.
 
         :param id: task id
         :type id: str
-        :param overwriteParameters: whether to overwrite parameters (default=False)
-        :type overwriteParameters: bool
         :param labels: updated task labels
         :type labels: Optional[list]
         :param tags: updated task tags
@@ -540,6 +538,8 @@ class Project:
         :type properties: Optional[dict]
         :param schedule: updated task schedule
         :type schedule: Optional[Schedule]
+        :param overwriteParameters: whether to overwrite parameters (default=False)
+        :type overwriteParameters: bool
         :return: updated task
         :rtype: Task
         """
