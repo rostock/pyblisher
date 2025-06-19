@@ -504,15 +504,15 @@ class Project:
     def update_task(
         self,
         id: str,
-        labels: Optional[list],
-        tags: Optional[dict],
-        debugLevel: Optional[int],  # 0-2
-        priority: Optional[int],
-        name: Optional[str],
-        description: Optional[str],
-        parameters: Optional[dict],
-        properties: Optional[dict],
-        schedule: Optional[dict],
+        labels: Optional[list] = None,
+        tags: Optional[dict] = None,
+        debugLevel: Optional[int] = None,  # 0-2
+        priority: Optional[int] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        parameters: Optional[dict] = None,
+        properties: Optional[dict] = None,
+        schedule: Optional[dict] = None,
         overwriteParameters: Optional[bool] = False,
     ):
         """
