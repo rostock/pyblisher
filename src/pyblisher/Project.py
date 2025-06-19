@@ -513,7 +513,7 @@ class Project:
         parameters: Optional[dict],
         properties: Optional[dict],
         schedule: Optional[dict],
-        overwriteParameters: bool = False,
+        overwriteParameters: Optional[bool] = False,
     ):
         """
         Update a task of this project.
