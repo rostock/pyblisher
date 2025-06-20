@@ -377,6 +377,7 @@ class Project:
 
     def update_source(
         self,
+        id: str,
         name: Optional[str] = None,
         description: Optional[str] = None,
         bbox: Optional[list] = None,
