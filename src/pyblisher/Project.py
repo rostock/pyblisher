@@ -375,6 +375,70 @@ class Project:
                     f'Failed to get datasource. Response: {response.__dict__}'
                 )
 
+    def update_source(
+        self,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        bbox: Optional[list] = None,
+        properties: Optional[dict] = None,
+        typeProperties: Optional[dict] = None,
+        sourceProperties: Optional[dict] = None,
+        overwriteParameters: Optional[bool] = False,
+    ):
+        """
+        Update a datasource attributes.
+        """
+        # prepare put request data
+        data: dict[str, Any] = {}
+        if name:
+            data['name'] = name
+        if description:
+            data['description'] = description
+        if bbox:
+            data['bbox'] = bbox
+        if properties:
+            data['properties'] = properties
+        if typeProperties:
+            data['typeProperties'] = typeProperties
+        if sourceProperties:
+            data['sourceProperties'] = sourceProperties
+
+        response: Response = self._api.put(
+            endpoint=self._endpoint + 'datasources/' + id,
+            json=data,
+        )
+        match response.status_code:
+            case 200:  # OK
+                return from_dict(
+                    data_class=Source,
+                    data=response.json(),
+                    config=settings.dacite_config,
+                )
+            case 400:  # Match failed
+                raise MatchFailed(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 401:  # Authentication failed
+                raise AuthenticationError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 403:  # Permission denied
+                raise PermissionError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 404:  # Object not Found
+                raise ObjectNotFound(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 500:  # Internal server error
+                raise InternalServerError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case _:
+                raise Exception(
+                    f'Unexpected status code - {response.status_code}: {response.__dict__}'
+                )
+
     def get_sources(self):
         """
         Get all datasources for this project.
