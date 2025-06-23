@@ -405,7 +405,7 @@ class Project:
             data['sourceProperties'] = sourceProperties
 
         response: Response = self._api.put(
-            endpoint=self._endpoint + 'datasources/' + id,
+            endpoint=self._endpoint + 'datasource/' + id,
             json=data,
         )
         match response.status_code:
