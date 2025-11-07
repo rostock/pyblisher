@@ -88,6 +88,7 @@ class Task:
     name: Optional[str]
     description: Optional[str]
     lastJobId: Optional[str]
+    lastJob: Optional[dict]
 
     ############## Dunder Methods ##############
     def __post_init__(self):
