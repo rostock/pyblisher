@@ -9,9 +9,9 @@ from .Bucket import Bucket
 from .client import client
 from .exceptions import (
     AuthenticationError,
-    ObjectNotFound,
-    MatchFailed,
     InternalServerError,
+    MatchFailed,
+    ObjectNotFound,
     PermissionError,
 )
 from .Settings import settings
@@ -665,13 +665,20 @@ class Project:
                     f'Failed to update task. Response: {response.__dict__}'
                 )
 
-    def get_tasks(self):
+    def get_tasks(self, filters: dict | None = None):
         """
         Get all tasks for this project.
         """
-        response: Response = self._api.get(endpoint=self._endpoint + 'tasks/')
+        response: Response = self._api.get(
+            endpoint=self._endpoint + 'tasks/',
+            params=filters,
+        )
         tasks = [
-            from_dict(data_class=Task, data=task, config=settings.dacite_config)
+            from_dict(
+                data_class=Task,
+                data=task,
+                config=settings.dacite_config,
+            )
             for task in response.json()['items']
         ]
         return tasks
