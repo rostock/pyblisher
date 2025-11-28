@@ -8,29 +8,52 @@ from .types import ApiClientProtocol
 
 
 def log(event_name, info):
-    """
-    Logging function for httpx client trace extension.
+    """Log function for httpx client trace extension.
+
+    Args:
+        event_name: The name of the event being logged.
+        info: Additional information about the event.
     """
     print(event_name, info)
 
 
 class ApiClient(ApiClientProtocol):
+    """API client for the VC Publisher API.
+
+    This class implements the singleton pattern and provides methods for
+    making HTTP requests to the VC Publisher API.
+
+    Attributes:
+        _instance: The singleton instance of the ApiClient.
+        _connected: Whether the client is connected to the API.
+        _url: The base URL of the API.
+    """
+
     _instance = None
     _connected = False
     _url: str = ''
 
     def __new__(cls):
-        """
-        Singleton Pattern
+        """Create a singleton instance of the ApiClient.
+
+        Returns:
+            The singleton instance of the ApiClient.
         """
         if cls._instance is None:
             cls._instance = super(ApiClient, cls).__new__(cls)
         return cls._instance
 
     def __login__(self) -> bool:
-        """
-        Login to API
-        :return: bearer token
+        """Login to the API.
+
+        Authenticates with the API using credentials from settings and
+        initializes the HTTP clients with bearer token authentication.
+
+        Returns:
+            True if login was successful, False otherwise.
+
+        Raises:
+            Exception: If login fails with a non-200 status code.
         """
         if not self._connected:
             bearer: str = 'no bearer'
@@ -55,8 +78,9 @@ class ApiClient(ApiClientProtocol):
         return self._connected
 
     def __logout__(self) -> None:
-        """
-        logout from API
+        """Logout from the API.
+
+        Terminates the authenticated session with the API.
         """
         if self._connected:
             response = self._client.get(url=self._url + 'logout/')
@@ -71,19 +95,20 @@ class ApiClient(ApiClientProtocol):
     def get(
         self, endpoint: str, params: Optional[dict] = None, *args, **kwargs
     ) -> Response:
-        """
-        Make a GET Request to the VC Publisher API.
+        """Make a GET request to the VC Publisher API.
 
-        :param endpoint: api endpoint like `projects/`
-        :param headers:
-        :param stream: just for file downloads, default False
-        :return: Response
+        Args:
+            endpoint: API endpoint like `projects/`.
+            params: Optional query parameters.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response object from the API.
         """
 
         def get_it():
-            """
-            Get Request
-            """
+            """Execute the GET request."""
             url = self._url + endpoint
             response: Response = self._client.get(
                 url=url,
@@ -111,21 +136,23 @@ class ApiClient(ApiClientProtocol):
         *args,
         **kwargs,
     ) -> Response:
-        """
-        Make a POST Request to the VC Publisher API.
+        """Make a POST request to the VC Publisher API.
 
-        :param endpoint: api endpoint like `project/`
-        :param data: dictionary delivered in request body
-        :param json:
-        :param params:
-        :param files:
-        :return:
+        Args:
+            endpoint: API endpoint like `project/`.
+            data: Dictionary delivered in request body.
+            json: JSON data to send.
+            params: Query parameters.
+            files: Files to upload.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Response object from the API.
         """
 
         def post_it():
-            """
-            Post Request
-            """
+            """Execute the POST request."""
             url: str = self._url + endpoint
             response = self._client.post(
                 url=url,
@@ -152,23 +179,19 @@ class ApiClient(ApiClientProtocol):
         headers: Optional[dict] = None,
         params: Optional[dict] = None,
     ) -> Response:
-        """
-        Make a DELETE Request to the VC Publisher API.
+        """Make a DELETE request to the VC Publisher API.
 
-        :param endpoint: api endpoint like `project/<project_id>/`
-        :type endpoint: str
-        :param headers: Optional dict for headers
-        :type headers: Optional[dict]
-        :param params: Optional dict for query parameters
-        :type params: Optional[dict]
-        :return: Response as dict
-        :rtype: Response
+        Args:
+            endpoint: API endpoint like `project/<project_id>/`.
+            headers: Optional dict for headers.
+            params: Optional dict for query parameters.
+
+        Returns:
+            Response object from the API.
         """
 
         def delete_it():
-            """
-            Delete Request
-            """
+            """Execute the DELETE request."""
             url: str = self._url + endpoint
             response = self._client.delete(
                 url=url,
@@ -195,26 +218,21 @@ class ApiClient(ApiClientProtocol):
         params: Optional[dict] = None,
         files: Optional[Any] = None,
     ) -> Response:
-        """
-        Make a PUT Request to the VC Publisher API.
+        """Make a PUT request to the VC Publisher API.
 
-        :param endpoint: The endpoint to PUT to.
-        :type endpoint: str
-        :param data: The data to PUT.
-        :type data: Optional[dict]
-        :param json: The JSON data to PUT.
-        :type json: Optional[dict]
-        :param params: The parameters to PUT.
-        :type params: Optional[dict]
-        :param files: The files to PUT.
-        :type files: Optional[Any]
-        :return: The response from the API.
+        Args:
+            endpoint: The endpoint to PUT to.
+            data: The data to PUT.
+            json: The JSON data to PUT.
+            params: The parameters to PUT.
+            files: The files to PUT.
+
+        Returns:
+            Response object from the API.
         """
 
         def put_it():
-            """
-            Put Request
-            """
+            """Execute the PUT request."""
             url = self._url + endpoint
             response = self._client.put(
                 url=url,
@@ -240,17 +258,22 @@ class ApiClient(ApiClientProtocol):
         endpoint: str,
         params: Optional[dict] = None,
     ) -> Any:
-        """
-        Führt einen Streaming-Request aus und gibt einen Generator zurück,
-        der über die Bytes des Response iteriert. Der HTTP-Stream wird hier
-        innerhalb eines with-Blocks geöffnet und automatisch geschlossen,
-        wenn der Generator erschöpft ist.
+        """Execute a streaming request and return a generator.
+
+        Performs a streaming request that iterates over the bytes of the response.
+        The HTTP stream is opened within a with-block and automatically closed
+        when the generator is exhausted.
+
+        Args:
+            endpoint: API endpoint.
+            params: Optional query parameters.
+
+        Returns:
+            A streaming response generator, or a Response with status 502 on failure.
         """
 
         async def stream_it():
-            """
-            Stream Request
-            """
+            """Execute the stream request."""
             url = self._url + endpoint
             return self._aclient.stream(
                 method='GET',

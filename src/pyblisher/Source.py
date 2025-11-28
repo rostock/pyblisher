@@ -8,8 +8,23 @@ from .types import ApiClientProtocol, SourceProperty
 
 @dataclass
 class Source:
-    """
-    This class implements the structure of Datasources of the VC Publisher API.
+    """Implements the structure of Datasources of the VC Publisher API.
+
+    Attributes:
+        _id: Datasource id.
+        name: Datasource name.
+        properties: Datasource properties.
+        typeProperties: Datasource type properties.
+        sourceProperties: Source properties defining internal or external source.
+        type: Datasource type (e.g. 'tileset', 'geojson', 'wms', etc.).
+        dataUpdatedAt: Timestamp when data was last updated.
+        dataUpdatedBy: User who last updated the data.
+        projectId: Project id.
+        uri: Datasource URI.
+        jobIds: List of job ids.
+        publishTaskIds: List of publish task ids.
+        description: Optional datasource description.
+        bbox: Optional bounding box.
     """
 
     # Internal attributes
@@ -53,17 +68,21 @@ class Source:
         numThreads: Optional[int],
         gzip: Optional[bool],
     ):
-        """
+        """Publish the datasource with the given parameters.
+
         Not implemented yet.
-        Publish the datasource with the given parameters.
+
+        Args:
+            credentialsId: Credentials id for publishing.
+            destination: Destination for publishing.
+            numThreads: Optional number of threads to use.
+            gzip: Optional flag to enable gzip compression.
         """
         pass
 
     ############## Dunder Methods ##############
     def __post_init__(self):
-        """
-        This function is called after the initialization of the object.
-        """
+        """Initialize the API endpoint after the object is created."""
         self._endpoint = f'project/{self.projectId}/datasource/{self._id}/'
 
     def __str__(self) -> str:

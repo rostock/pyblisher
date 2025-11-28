@@ -5,15 +5,21 @@ from httpx import Response
 
 
 class ApiClientProtocol(Protocol):
+    """Protocol defining the interface for API clients."""
+
     def get(
         self,
         endpoint: str,
         params: Optional[dict] = None,
     ) -> Response:
-        """
-        Make a GET Request to the VC Publisher API.
+        """Make a GET Request to the VC Publisher API.
 
-        :return: Response as dict
+        Args:
+            endpoint: The API endpoint to request.
+            params: Optional query parameters.
+
+        Returns:
+            Response object from the API.
         """
         ...
 
@@ -25,10 +31,17 @@ class ApiClientProtocol(Protocol):
         params: Optional[dict] = None,
         files: Optional[Any] = None,
     ) -> Response:
-        """
-        Make a POST Request to the VC Publisher API.
+        """Make a POST Request to the VC Publisher API.
 
-        :return: Response as dict
+        Args:
+            endpoint: The API endpoint to request.
+            data: Optional form data.
+            json: Optional JSON data.
+            params: Optional query parameters.
+            files: Optional files to upload.
+
+        Returns:
+            Response object from the API.
         """
         ...
 
@@ -38,10 +51,15 @@ class ApiClientProtocol(Protocol):
         headers: Optional[dict] = None,
         params: Optional[dict] = None,
     ) -> Response:
-        """
-        Make a DELETE Request to the VC Publisher API.
+        """Make a DELETE Request to the VC Publisher API.
 
-        :return: Response as dict
+        Args:
+            endpoint: The API endpoint to request.
+            headers: Optional request headers.
+            params: Optional query parameters.
+
+        Returns:
+            Response object from the API.
         """
         ...
 
@@ -53,8 +71,17 @@ class ApiClientProtocol(Protocol):
         params: Optional[dict] = None,
         files: Optional[Any] = None,
     ) -> Response:
-        """
-        Make a PUT Request to the VC Publisher API.
+        """Make a PUT Request to the VC Publisher API.
+
+        Args:
+            endpoint: The API endpoint to request.
+            data: Optional form data.
+            json: Optional JSON data.
+            params: Optional query parameters.
+            files: Optional files to upload.
+
+        Returns:
+            Response object from the API.
         """
         ...
 
@@ -63,22 +90,27 @@ class ApiClientProtocol(Protocol):
         endpoint: str,
         params: Optional[dict] = None,
     ) -> Any:
-        """
-        Make a streaming request to the VC Publisher API.
+        """Make a streaming request to the VC Publisher API.
 
-        :param endpoint: API endpoint
-        :type endpoint: str
-        :param params: query parameters
-        :type params: Optional[dict]
+        Args:
+            endpoint: The API endpoint to request.
+            params: Optional query parameters.
+
+        Returns:
+            A streaming response generator.
         """
         ...
 
 
 @dataclass
 class SourceProperty:
-    """
+    """Base class for source properties.
+
     SourceProperty is a dataclass that represents one structure of the
     sourceProperties attribute of the Source class.
+
+    Attributes:
+        type: The type of source ('external' or 'internal').
     """
 
     type: Literal['external', 'internal']
@@ -86,9 +118,14 @@ class SourceProperty:
 
 @dataclass
 class ExternalSource(SourceProperty):
-    """
-    ExternalSource is a dataclass that represents one structure of the
-    sourceProperties attribute of the Source class.
+    """External source configuration.
+
+    ExternalSource is a dataclass that represents an external source
+    configuration for the sourceProperties attribute of the Source class.
+
+    Attributes:
+        type: The type of source, always 'external'.
+        url: The URL of the external source.
     """
 
     type = 'external'
@@ -97,14 +134,17 @@ class ExternalSource(SourceProperty):
 
 @dataclass
 class InternalSource(SourceProperty):
-    """
-    InternalSource is a dataclass that represents one structure of the
-    sourceProperties attribute of the Source class.
+    """Internal source configuration.
+
+    InternalSource is a dataclass that represents an internal source
+    configuration for the sourceProperties attribute of the Source class.
     It defines the bucket and key of the internal source.
 
-    :attr dataBucketId: bucket id
-    :attr dataBucketKey: bucket key
-    :attr urlSuffix: Optional[str]
+    Attributes:
+        type: The type of source, always 'internal'.
+        dataBucketId: The bucket id.
+        dataBucketKey: The bucket key.
+        urlSuffix: Optional URL suffix.
     """
 
     type = 'internal'
@@ -115,19 +155,21 @@ class InternalSource(SourceProperty):
 
 @dataclass
 class Schedule:
-    """
+    """Schedule configuration for tasks.
+
     Schedule is a dataclass that represents the schedule attribute of the Task
-    class.
-    There are three types of schedules: immediate, scheduled, and cron.
-    For immediate schedules, the type attribute is required.
+    class. There are three types of schedules: immediate, scheduled, and cron.
+
+    For immediate schedules, only the type attribute is required.
     For scheduled schedules, the type and scheduled attributes are required.
     For cron schedules, the type and cron attributes are required.
     The suspended attribute is optional for scheduled and cron schedules.
 
-    :attr type: Literal['immediate', 'scheduled', 'cron']
-    :attr scheduled: Optional[str]
-    :attr cron: Optional[str]
-    :attr suspended: Optional[bool]
+    Attributes:
+        type: The schedule type ('immediate', 'scheduled', or 'cron').
+        scheduled: Optional datetime in isoformat for scheduled jobs.
+        cron: Optional cron expression for cron jobs.
+        suspended: Optional flag to suspend scheduled or cron jobs.
     """
 
     type: Literal['immediate', 'scheduled', 'cron']
@@ -139,4 +181,9 @@ class Schedule:
     suspended: Optional[bool] = None
 
     def to_dict(self) -> dict:
+        """Convert the Schedule to a dictionary.
+
+        Returns:
+            A dictionary representation of the schedule.
+        """
         return self.__dict__

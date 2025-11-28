@@ -16,13 +16,20 @@ from .User import User
 
 
 def get_project(id: str) -> Project:
-    """
-    Get project by id
+    """Get project by id.
 
-    :param project_id: project id
-    :type project_id: str
-    :return: project
-    :rtype: Project
+    Args:
+        id: The project id.
+
+    Returns:
+        The requested project.
+
+    Raises:
+        MatchFailed: If the request parameters are invalid (400).
+        AuthenticationError: If authentication fails (401).
+        PermissionError: If permission is denied (403).
+        ObjectNotFound: If the project is not found (404).
+        InternalServerError: If an internal server error occurs (500).
     """
     api: ApiClientProtocol = client
     response: Response = api.get(
@@ -60,13 +67,16 @@ def get_project(id: str) -> Project:
 
 
 def get_user(user_id: str) -> User:
-    """
-    Get user by id
+    """Get user by id.
 
-    :param user_id: user id
-    :type user_id: str
-    :return: user
-    :rtype: User
+    Args:
+        user_id: The user id.
+
+    Returns:
+        The requested user.
+
+    Raises:
+        Exception: If the request fails.
     """
     api: ApiClientProtocol = client
     response: Response = api.get(

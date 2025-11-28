@@ -22,29 +22,19 @@ from .types import ApiClientProtocol
 
 @dataclass
 class Project:
-    """
-    This class implements the structure of Projects of the VC Publisher API.
+    """Structure of Projects of the VC Publisher API.
 
-    :attribute _id: project id
-    :atype _id: str
-    :attribute name: project name
-    :atype name: str
-    :attribute bbox: project bounding box
-    :atype bbox: list
-    :attribute defaultDataBucketId: default data bucket id
-    :atype defaultDataBucketId: str
-    :attribute createdAt: project creation date
-    :atype createdAt: datetime
-    :attribute updatedAt: project update date
-    :atype updatedAt: datetime
-    :attribute createdBy: project creator
-    :atype createdBy: User
-    :attribute updatedBy: project last updater
-    :atype updatedBy: User
-    :attribute description: project description
-    :atype description: str
-    :attribute properties: project properties
-    :atype properties: dict
+    Attributes:
+        _id: Project id.
+        name: Project name.
+        bbox: Project bounding box.
+        defaultDataBucketId: Default data bucket id.
+        createdAt: Project creation date.
+        updatedAt: Project update date.
+        createdBy: Project creator.
+        updatedBy: Project last updater.
+        description: Project description.
+        properties: Project properties.
     """
 
     # Internal attributes
@@ -72,17 +62,21 @@ class Project:
         description: Optional[str] = None,
         properties: Optional[dict] = None,
     ) -> Bucket:
-        """
-        Create a bucket for this project.
+        """Create a bucket for this project.
 
-        :param name: bucket name
-        :type name: str
-        :param description: optional bucket description
-        :type description: str
-        :param properties: optional bucket properties
-        :type properties: dict
-        :return: new bucket
-        :rtype: Bucket
+        Args:
+            name: Bucket name.
+            description: Optional bucket description.
+            properties: Optional bucket properties.
+
+        Returns:
+            The newly created bucket.
+
+        Raises:
+            MatchFailed: If the request parameters are invalid (400).
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            InternalServerError: If an internal server error occurs (500).
         """
         # prepare post request data
         data: dict = {'name': name}
@@ -125,13 +119,19 @@ class Project:
                 )
 
     def get_bucket(self, id: str) -> Bucket:
-        """
-        Get a bucket for this project.
+        """Get a bucket for this project.
 
-        :param id: bucket id
-        :type id: str
-        :return: bucket
-        :rtype: Bucket
+        Args:
+            id: Bucket id.
+
+        Returns:
+            The requested bucket.
+
+        Raises:
+            MatchFailed: If the request parameters are invalid (400).
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            ObjectNotFound: If the bucket is not found (404).
         """
         response = self._api.get(endpoint=self._endpoint + f'data-bucket/{id}/')
         match response.status_code:
@@ -169,19 +169,22 @@ class Project:
         description: Optional[str] = None,
         properties: Optional[dict] = None,
     ) -> Bucket:
-        """]
-        Update a bucket for this project.
+        """Update a bucket for this project.
 
-        :param id: bucket id
-        :type id: str
-        :param name: updated Bucket name
-        :type name: Optional[str]
-        :param description: updated Bucket description
-        :type description: Optional[str]
-        :param properties: updated Bucket properties
-        :type properties: Optional[dict]
-        return: updated bucket
-        :rtype: Bucket
+        Args:
+            id: Bucket id.
+            name: Updated bucket name.
+            description: Updated bucket description.
+            properties: Updated bucket properties.
+
+        Returns:
+            The updated bucket.
+
+        Raises:
+            MatchFailed: If the request parameters are invalid (400).
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            InternalServerError: If an internal server error occurs (500).
         """
         # prepare put request data
         data: dict[str, Any] = {}
@@ -225,25 +228,39 @@ class Project:
                     f'Failed to update bucket. Response: {response.__dict__}'
                 )
 
-    def get_buckets(self) -> list[Bucket]:
-        """
-        Get all buckets for this project.
+    def get_buckets(self) -> tuple[list[Bucket], int, int, int, int]:
+        """Get all buckets for this project.
 
-        :return: list of buckets
-        :rtype: list
+        Returns:
+            A tuple containing:
+                - List of buckets.
+                - Limit (items per page).
+                - Current page number.
+                - Total pages.
+                - Total count of items.
+
+        Raises:
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            ObjectNotFound: If the project is not found (404).
         """
         response = self._api.get(endpoint=self._endpoint + 'data-buckets/')
         match response.status_code:
             case 200:  # OK
-                content = response.json()
-                return [
+                data = response.json()
+                buckets = [
                     from_dict(
                         data_class=Bucket,
                         data=bucket,
                         config=settings.dacite_config,
                     )
-                    for bucket in content['items']
+                    for bucket in data['items']
                 ]
+                limit = data['limit']
+                page = data['page']
+                totalPages = data['totalPages']
+                totalCount = data['totalCount']
+                return buckets, limit, page, totalPages, totalCount
             case 401:  # Authentication failed
                 raise AuthenticationError(
                     f'{response.status_code} - {response.json()["reason"]}'
@@ -283,26 +300,24 @@ class Project:
         description: Optional[str] = None,
         bbox: Optional[list] = None,
         properties: Optional[dict] = None,
-    ):
-        """
-        Create a datasource for this project.
+    ) -> Source:
+        """Create a datasource for this project.
 
-        :param name: datasource name
-        :type name: str
-        :param sourceProperties: bucket info
-        :type sourceProperties: InternalSource | ExternalSource
-        :param type: datasource type (e.g. 'tileset', 'geojson', 'wms', etc.)
-        :type type: str
-        :param typeProperties: datasource type properties
-        :type typeProperties: dict
-        :param description: optional datasource description
-        :type description: str
-        :param bbox: optional bounding box
-        :type bbox: list
-        :param properties: optional datasource properties
-        :type properties: dict
-        :return: new datasource
-        :rtype: Source
+        Args:
+            name: Datasource name.
+            sourceProperties: Bucket info (InternalSource or ExternalSource).
+            type: Datasource type (e.g. 'tileset', 'geojson', 'wms', etc.).
+            typeProperties: Datasource type properties.
+            description: Optional datasource description.
+            bbox: Optional bounding box.
+            properties: Optional datasource properties.
+
+        Returns:
+            The newly created datasource.
+
+        Raises:
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
         """
         # prepare post request data
         data = {
@@ -344,9 +359,19 @@ class Project:
                     f'Failed to create datasource. Response: {response.__dict__}'
                 )
 
-    def get_source(self, id: str):
-        """
-        Get a datasource for this project.
+    def get_source(self, id: str) -> Source:
+        """Get a datasource for this project.
+
+        Args:
+            id: Datasource id.
+
+        Returns:
+            The requested datasource.
+
+        Raises:
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            ObjectNotFound: If the datasource is not found (404).
         """
         response: Response = self._api.get(
             endpoint=self._endpoint + f'datasource/{id}/'
@@ -385,9 +410,28 @@ class Project:
         typeProperties: Optional[dict] = None,
         sourceProperties: Optional[dict] = None,
         overwriteParameters: Optional[bool] = False,
-    ):
-        """
-        Update a datasource attributes.
+    ) -> Source:
+        """Update a datasource's attributes.
+
+        Args:
+            id: Datasource id.
+            name: Updated datasource name.
+            description: Updated datasource description.
+            bbox: Updated bounding box.
+            properties: Updated datasource properties.
+            typeProperties: Updated type properties.
+            sourceProperties: Updated source properties.
+            overwriteParameters: Whether to overwrite parameters. Defaults to False.
+
+        Returns:
+            The updated datasource.
+
+        Raises:
+            MatchFailed: If the request parameters are invalid (400).
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            ObjectNotFound: If the datasource is not found (404).
+            InternalServerError: If an internal server error occurs (500).
         """
         # prepare put request data
         data: dict[str, Any] = {}
@@ -440,22 +484,57 @@ class Project:
                     f'Unexpected status code - {response.status_code}: {response.__dict__}'
                 )
 
-    def get_sources(self):
-        """
-        Get all datasources for this project.
+    def get_sources(self) -> tuple[list[Source], int, int, int, int]:
+        """Get all datasources for this project.
+
+        Returns:
+            A tuple containing:
+                - List of datasources.
+                - Limit (items per page).
+                - Current page number.
+                - Total pages.
+                - Total count of items.
+
+        Raises:
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            ObjectNotFound: If the project is not found (404).
         """
         response: Response = self._api.get(
             endpoint=self._endpoint + 'datasources/'
         )
-        datasources = [
-            from_dict(
-                data_class=Source,
-                data=datasource,
-                config=settings.dacite_config,
-            )
-            for datasource in response.json()['items']
-        ]
-        return datasources
+        match response.status_code:
+            case 200:  # OK
+                data = response.json()
+                datasources: list[Source] = [
+                    from_dict(
+                        data_class=Source,
+                        data=datasource,
+                        config=settings.dacite_config,
+                    )
+                    for datasource in data['items']
+                ]
+                limit: int = data['limit']
+                page: int = data['page']
+                totalPages: int = data['totalPages']
+                totalCount: int = data['totalCount']
+                return datasources, limit, page, totalPages, totalCount
+            case 401:  # Authentication failed
+                raise AuthenticationError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 403:  # Permission denied
+                raise PermissionError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 404:  # Not found
+                raise ObjectNotFound(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case _:  # All other cases
+                raise Exception(
+                    f'Failed to get buckets. Response: {response.__dict__}'
+                )
 
     ############## Tasks ##############
     def create_task(
@@ -471,9 +550,30 @@ class Project:
         description: Optional[str] = None,
         properties: Optional[dict] = None,
         jobVersion: Optional[str] = None,
-    ):
-        """
-        Create a task for this project.
+    ) -> Task:
+        """Create a task for this project.
+
+        Args:
+            name: Task name.
+            parameters: Task parameters.
+            jobType: Task job type.
+            schedule: Task schedule configuration.
+            labels: Optional task labels.
+            tags: Optional task tags.
+            debugLevel: Optional task debug level (0-2).
+            priority: Optional task priority.
+            description: Optional task description.
+            properties: Optional task properties.
+            jobVersion: Optional task job version.
+
+        Returns:
+            The newly created task.
+
+        Raises:
+            MatchFailed: If the request parameters are invalid (400).
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            InternalServerError: If an internal server error occurs (500).
         """
         # prepare post request data
         data: dict[str, Any] = {
@@ -535,9 +635,19 @@ class Project:
                     f'Failed to create task. Response: {response.__dict__}'
                 )
 
-    def get_task(self, id: str):
-        """
-        Get a task for this project.
+    def get_task(self, id: str) -> Task:
+        """Get a task for this project.
+
+        Args:
+            id: Task id.
+
+        Returns:
+            The requested task.
+
+        Raises:
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            ObjectNotFound: If the task is not found (404).
         """
         response: Response = self._api.get(
             endpoint=self._endpoint + f'task/{id}/'
@@ -579,34 +689,30 @@ class Project:
         properties: Optional[dict] = None,
         schedule: Optional[dict] = None,
         overwriteParameters: Optional[bool] = False,
-    ):
-        """
-        Update a task of this project.
+    ) -> Task:
+        """Update a task of this project.
 
-        :param id: task id
-        :type id: str
-        :param labels: updated task labels
-        :type labels: Optional[list]
-        :param tags: updated task tags
-        :type tags: Optional[dict]
-        :param debugLevel: updated task debug level
-        :type debugLevel: Optional[int]
-        :param priority: updated task priority
-        :type priority: Optional[int]
-        :param name: updated task name
-        :type name: Optional[str]
-        :param description: updated task description
-        :type description: Optional[str]
-        :param parameters: updated task parameters
-        :type parameters: Optional[dict]
-        :param properties: updated task properties
-        :type properties: Optional[dict]
-        :param schedule: updated task schedule
-        :type schedule: Optional[Schedule]
-        :param overwriteParameters: whether to overwrite parameters (default=False)
-        :type overwriteParameters: bool
-        :return: updated task
-        :rtype: Task
+        Args:
+            id: Task id.
+            labels: Updated task labels.
+            tags: Updated task tags.
+            debugLevel: Updated task debug level (0-2).
+            priority: Updated task priority.
+            name: Updated task name.
+            description: Updated task description.
+            parameters: Updated task parameters.
+            properties: Updated task properties.
+            schedule: Updated task schedule.
+            overwriteParameters: Whether to overwrite parameters. Defaults to False.
+
+        Returns:
+            The updated task.
+
+        Raises:
+            MatchFailed: If the request parameters are invalid (400).
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            InternalServerError: If an internal server error occurs (500).
         """
         # prepare put request data
         data: dict[str, Any] = {}
@@ -665,33 +771,69 @@ class Project:
                     f'Failed to update task. Response: {response.__dict__}'
                 )
 
-    def get_tasks(self, filters: dict | None = None):
-        """
-        Get all tasks for this project.
+    def get_tasks(
+        self, filters: dict | None = None
+    ) -> tuple[list[Task], int, int, int, int]:
+        """Get all tasks for this project.
+
+        Args:
+            filters: Optional dictionary of filters to apply to the task retrieval.
+
+        Returns:
+            A tuple containing:
+                - List of tasks.
+                - Limit (items per page).
+                - Current page number.
+                - Total pages.
+                - Total count of items.
+
+        Raises:
+            AuthenticationError: If authentication fails (401).
+            PermissionError: If permission is denied (403).
+            ObjectNotFound: If the project is not found (404).
         """
         response: Response = self._api.get(
             endpoint=self._endpoint + 'tasks/',
             params=filters,
         )
-        tasks = [
-            from_dict(
-                data_class=Task,
-                data=task,
-                config=settings.dacite_config,
-            )
-            for task in response.json()['items']
-        ]
-        return tasks
+        match response.status_code:
+            case 200:  # OK
+                data = response.json()
+                tasks: list[Task] = [
+                    from_dict(
+                        data_class=Task,
+                        data=task,
+                        config=settings.dacite_config,
+                    )
+                    for task in data['items']
+                ]
+                limit: int = data['limit']
+                page: int = data['page']
+                totalPages: int = data['totalPages']
+                totalCount: int = data['totalCount']
+                return tasks, limit, page, totalPages, totalCount
+            case 401:  # Authentication failed
+                raise AuthenticationError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 403:  # Permission denied
+                raise PermissionError(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case 404:  # Not found
+                raise ObjectNotFound(
+                    f'{response.status_code} - {response.json()["reason"]}'
+                )
+            case _:  # All other cases
+                raise Exception(
+                    f'Failed to get buckets. Response: {response.__dict__}'
+                )
 
     ############## Dunder Methods ##############
     def __post_init__(self):
-        """
-        Initialize the API endpoint, after the object is created.
-        """
+        """Initialize the API endpoint after the object is created."""
         self._endpoint = f'project/{self._id}/'
 
     def __str__(self):
-        """
-        String representation of the object as its id.
-        """
+        """Return string representation of the object as its id."""
         return self._id

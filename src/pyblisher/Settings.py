@@ -10,19 +10,17 @@ from .types import SourceProperty
 
 
 class Settings:
-    """
-    This class is a singleton that loads settings from different sources.
+    """Singleton class that loads settings from different sources.
 
-    :attr host: The host of the API
-    :atype host: str
-    :attr user: The user for the API
-    :atype user: str
-    :attr password: The password for the API
-    :atype password: str
-    :attr api_version: The version of the API
-    :atype api_version: str
-    :attr project_id: The project id
-    :atype project_id: str
+    This class is a singleton that loads settings from different sources
+    like Django settings, pyblisher.json, or pyproject.toml.
+
+    Attributes:
+        host: The host of the API.
+        user: The user for the API.
+        password: The password for the API.
+        api_version: The version of the API.
+        project_id: The project id.
     """
 
     _instance = None
@@ -34,8 +32,12 @@ class Settings:
     )
 
     def __new__(cls):
-        """
+        """Create a singleton instance of the Settings class.
+
         This is a singleton, so we only create one instance of this class.
+
+        Returns:
+            Settings: The singleton instance of the Settings class.
         """
         if cls._instance is None:
             cls._instance = super(Settings, cls).__new__(cls)
@@ -43,8 +45,16 @@ class Settings:
         return cls._instance
 
     def _load_settings(self) -> None:
-        """
-        This function tries to load settings from different sources.
+        """Try to load settings from different sources.
+
+        This function tries to load settings from different sources in the
+        following order:
+        1. Django settings
+        2. pyblisher.json
+        3. pyproject.toml
+
+        Raises:
+            AttributeError: If no settings are found in any source.
         """
         # 1. Try to load settings from Django settings.
         if self._load_django_settings():
@@ -68,8 +78,10 @@ class Settings:
             )
 
     def _load_django_settings(self) -> bool:
-        """
-        This function tries to load settings from Django settings.
+        """Try to load settings from Django settings.
+
+        Returns:
+            bool: True if settings were loaded successfully, False otherwise.
         """
         try:
             from django.conf import settings  # type: ignore[import-not-found]
@@ -83,8 +95,13 @@ class Settings:
         return False
 
     def _load_toml_config(self) -> bool:
-        """
-        This function tries to load settings from a pyblisher.toml file.
+        """Try to load settings from a pyproject.toml file.
+
+        Looks for a pyproject.toml file in the current working directory
+        and loads settings from the [pyblisher] section.
+
+        Returns:
+            bool: True if settings were loaded successfully, False otherwise.
         """
         try:
             # Look for pyproject.toml in the current project directory
@@ -104,8 +121,13 @@ class Settings:
         return False
 
     def _load_json_config(self) -> bool:
-        """
-        This function tries to load settings from a pyblisher.json file.
+        """Try to load settings from a pyblisher.json file.
+
+        Looks for a pyblisher.json file in the current working directory
+        and loads all settings from it.
+
+        Returns:
+            bool: True if settings were loaded successfully, False otherwise.
         """
         try:
             # Look for pyblisher.json in the current project directory
@@ -123,18 +145,23 @@ class Settings:
         return False
 
     def __getattr__(self, name: str):
-        """
-        This function is called when an attribute is not found.
+        """Handle attribute access for undefined attributes.
+
+        Args:
+            name: The name of the attribute being accessed.
+
+        Raises:
+            AttributeError: Always raised when an undefined attribute is accessed.
         """
         raise AttributeError(
             f"'{self.__class__.__name__}' has no attribute '{name}'"
         )
 
     def __repr__(self):
-        """
-        This function returns its state in the following format:
-            ClassName(attr1=value1, attr2=value2, ...)
-        every value is represented with its repr() function
+        """Return a string representation of the Settings instance.
+
+        Returns:
+            str: A string in the format ClassName(attr1=value1, attr2=value2, ...).
         """
         text = f'{self.__class__.__name__}('
         for key, value in self.__dict__.items():

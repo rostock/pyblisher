@@ -8,59 +8,29 @@ from .types import Schedule
 
 @dataclass
 class Task:
-    """
-    This class implements the structure of Tasks of the VC Publisher API.
+    """Implements the structure of Tasks of the VC Publisher API.
 
-    # Internal attributes
-    This are attributes, which are not overgiven by the API, but are necessary
-    for the object to work. They might not be initialized.
-
-    :attribute _api: The API client
-    :atype _api: ApiClient
-    :attribute _endpoint: The API endpoint
-    :atype _endpoint: str
-
-    # Required attributes
-    This are attributes, which are definitly overgiven by the API.
-
-    :attribute _id: task id
-    :atype _id: str
-    :attribute createdAt: task creation date
-    :atype createdAt: datetime
-    :attribute updatedAt: task update date
-    :atype updatedAt: datetime
-    :attribute createdBy: task creator
-    :atype createdBy: str
-    :attribute updatedBy: task last updater
-    :atype updatedBy: str
-    :attribute labels: task labels
-    :atype labels: list
-    :attribute properties: task properties
-    :atype properties: dict
-    :attribute tags: task tags: additional metadata attributes not used by the Publisher
-    :atype tags: dict
-    :attribute debugLevel: task debug level
-    :atype debugLevel: int
-    :attribute jobType: task job type
-    :atype jobType: str
-    :attribute jobVersion: task job version
-    :atype jobVersion: str
-    :attribute projectId: project id
-    :atype projectId: str
-    :attribute priority: task priority
-    :atype priority: int
-    :attribute parameters: task parameters
-    :atype parameters: dict
-    :attribute schedule: task schedule
-    :atype schedule: dict
-
-    # Optional attributes, which are not necessarily overgiven by the API
-    :attribute name: task name
-    :atype name: str
-    :attribute description: task description
-    :atype description: str
-    :attribute lastJobId: task last job id
-    :atype lastJobId: str
+    Attributes:
+        _api (ApiClient): The API client.
+        _endpoint (str): The API endpoint.
+        _id (str): Task id.
+        createdAt (datetime): Task creation date.
+        updatedAt (datetime): Task update date.
+        createdBy (str): Task creator.
+        updatedBy (str): Task last updater.
+        labels (list): Task labels.
+        properties (dict): Task properties.
+        tags (dict): Task tags - additional metadata attributes not used by the Publisher.
+        debugLevel (int): Task debug level.
+        jobType (str): Task job type.
+        jobVersion (str): Task job version.
+        projectId (str): Project id.
+        priority (int): Task priority.
+        parameters (dict): Task parameters.
+        schedule (dict): Task schedule.
+        name (str): Task name.
+        description (str): Task description.
+        lastJobId (str): Task last job id.
     """
 
     # Internal attributes
@@ -92,13 +62,9 @@ class Task:
 
     ############## Dunder Methods ##############
     def __post_init__(self):
-        """
-        Initialize the API endpoint, after the object is created.
-        """
+        """Initialize the API endpoint after the object is created."""
         self._endpoint = f'project/{self.projectId}/task/{self._id}/'
 
     def __str__(self):
-        """
-        String representation of the Task object as its id.
-        """
+        """Return string representation of the Task object as its id."""
         return self._id

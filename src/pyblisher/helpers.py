@@ -8,26 +8,33 @@ from .types import ExternalSource, InternalSource, SourceProperty
 
 ############## Dacite Type-Hooks ##############
 def parse_datetime(value: str) -> datetime:
-    """
+    """Parse datetime from isoformat string.
+
     Type-hook for dacite to parse datetime from isoformat.
     It replaces the 'Z' with '+00:00' to make it compatible with fromisoformat.
 
-    :param value: datetime in isoformat
-    :type value: str
-    :return: datetime
-    :rtype: datetime
+    Args:
+        value: Datetime in isoformat.
+
+    Returns:
+        Parsed datetime object.
     """
     return datetime.fromisoformat(value.replace('Z', '+00:00'))
 
 
 def parse_source_property(value: dict) -> SourceProperty:
-    """
+    """Parse SourceProperty from dict.
+
     Type-hook for dacite to parse SourceProperty from dict.
 
-    :param value: SourceProperty as dict
-    :type value: dict
-    :return: SourceProperty
-    :rtype: SourceProperty
+    Args:
+        value: SourceProperty as dict.
+
+    Returns:
+        Parsed SourceProperty object (ExternalSource or InternalSource).
+
+    Raises:
+        ValueError: If the SourceProperty type is unknown.
     """
     if value['type'] == 'external':
         return ExternalSource(**value)
@@ -39,11 +46,15 @@ def parse_source_property(value: dict) -> SourceProperty:
 
 ############## other ##############
 def file_upload_generator(filepath: str):
-    """
+    """Generate file chunks for upload with progress bar.
+
     Generator to upload a file with progress bar.
 
-    :yield: file-like object
-    :rtype: file-like object
+    Args:
+        filepath: Path to the file to upload.
+
+    Yields:
+        File chunks of 1024 bytes.
     """
     total = os.path.getsize(filepath)
     with tqdm(
